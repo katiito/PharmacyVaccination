@@ -34,14 +34,19 @@ function data = ReadInData(datatype, years)
         % grab postcode at the end of the Location member
         data.PostCodes = cellfun(@getPostCode, data.LocationName);
 
-
+        
+        
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% GP %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     elseif strcmp(datatype, 'GP')
         % constants
         NumHeaderLines = 3;
-        if strcmp(years, '2013_2014')
+        if strcmp(years, '2010_2011')
+            NumCols = 118;
+            MergedIndices1 = [9,12,12,9*ones(1,8),1,9,3];
+            MergedIndices2 = [9, 3*ones(1,29),1,3*ones(1,3) 1, 1, 1];
+        elseif strcmp(years, '2013_2014')
             NumCols = 127;
             MergedIndices1 = [10,12,12,9*ones(1,10),3];
             MergedIndices2 = [10, 3*ones(1,38), 1, 1, 1];
@@ -118,3 +123,4 @@ end
 function pc = getPostCode(i_str)
     pc = regexp(i_str,'\(([^:]*)\)','tokens');
 end
+
