@@ -44,14 +44,17 @@ function data = ReadInData(datatype, years)
         NumHeaderLines = 3;
         if strcmp(years, '2010_2011')
             NumCols = 118;
+            NumColsPre = 9;
             MergedIndices1 = [9,12,12,9*ones(1,8),1,9,3];
             MergedIndices2 = [9, 3*ones(1,29),1,3*ones(1,3) 1, 1, 1];
         elseif strcmp(years, '2013_2014')
             NumCols = 127;
+            NumColsPre = 10;
             MergedIndices1 = [10,12,12,9*ones(1,10),3];
             MergedIndices2 = [10, 3*ones(1,38), 1, 1, 1];
         else
             NumCols = 109;
+            NumColsPre = 10;
             MergedIndices1 = [10,12,12,9*ones(1,8),3];
             MergedIndices2 = [10, 3*ones(1,32), 1, 1, 1];
         end
@@ -63,13 +66,15 @@ function data = ReadInData(datatype, years)
         for hl = 1:NumHeaderLines
             hstring{hl} = fgets(fid);
         end
-        readinformat = repmat('%s ', 1, NumCols);
+        headerformat = repmat('%s ', 1, NumCols);
+        readinformat = [repmat('%s ', 1, NumColsPre), repmat('%f ', 1, NumCols-NumColsPre)];
+        headerformat(end) = [];
         readinformat(end) = [];
       
 
         % read in header and data and close the file
         for hl = 1:NumHeaderLines
-            headerlines{hl} = textscan(hstring{hl}, readinformat, 'Delimiter', '\t');
+            headerlines{hl} = textscan(hstring{hl}, headerformat, 'Delimiter', '\t');
         end
         dataout = textscan(fid, readinformat, 'Delimiter', '\t');
         fclose(fid);

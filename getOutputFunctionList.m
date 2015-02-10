@@ -1,4 +1,4 @@
-function h = outputFunctionList
+function h = getOutputFunctionList
 
     h.PharmacyUptake = @outputPharmacyUptake;
     
