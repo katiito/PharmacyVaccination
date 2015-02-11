@@ -77,6 +77,7 @@ function data = ReadInData(datatype, years)
             headerlines{hl} = textscan(hstring{hl}, headerformat, 'Delimiter', '\t');
         end
         dataout = textscan(fid, readinformat, 'Delimiter', '\t');
+        NumRows = size(dataout{1},1);
         fclose(fid);
 
         % remove whitespace from headers
@@ -114,6 +115,11 @@ function data = ReadInData(datatype, years)
             headerB = headerlines{2}{i}; headerB = headerB{1};
             headerC = headerlines{3}{i}; headerC = headerC{1};
             data.(headerA).(headerB).(headerC) = dataout{i};
+        end
+        
+        % remove front "NHS" from CCG names
+        for irow = 1:NumRows
+            data.PCTName{irow} = regexprep(data.PCTName{irow},'(NHS) ','');
         end
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% OTHER %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
