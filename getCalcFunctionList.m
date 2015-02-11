@@ -4,6 +4,8 @@ h.nulls = @calculateNulls;
 h.brackets = @getBracketed;
 h.titleindex = @getTitle;
 h.nullindex = @locateNulls;
+h.RelabelCCGasPCT = @RelabelCCGasPCT;
+h.RemovePCT = @RemovePCT;
 
 end
 
@@ -57,7 +59,27 @@ out = a{1} | a{2} | a{3} | a{4} | a{5} | a{6} | a{7} | a{8} | a{9};
 end
 
 
+%% CCG --> PCT
+function newstring = RelabelCCGasPCT(pctstring)
 
- 
+    
+    newstring = regexprep(pctstring,'(WEST LONDON \(K&C & QPP\))','KENSINGTON AND CHELSEA');
+    newstring = regexprep(newstring,'(CENTRAL LONDON \(WESTMINSTER\))','WESTMINSTER');
+
+    newstring = regexprep(newstring,'(RICHMOND)','RICHMOND AND TWICKENHAM');
+    
+    newstring = regexprep(newstring,'(MERTON CCG)','SUTTON AND MERTON');
+    newstring = regexprep(newstring,'(SUTTON CCG)','SUTTON AND MERTON');
+    newstring = regexprep(newstring,'(CCG)','');
+
+
+end
+
+function newstring = RemovePCT(pctstring)
+
+    newstring = regexprep(pctstring,'(PCT)','');
+    newstring = regexprep(newstring,'( TEACHING)','');
+    newstring = regexprep(newstring,'( CARE TRUST)','');
+end
 
 

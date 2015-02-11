@@ -20,9 +20,13 @@ outputs.PharmacyUptake(dataPharmacy_20132014.GP, flist);
             
 % 2. WHICH PCTs had most uptake in pharmacists vs GPs
 %uptake over time in GPs (totals=given by GP, total vacc = given by GP + pharmacies) (% given matched GP practice) + Pharmacies (% given matched GP practice)
-outputs.PlotUptakebyPCT(dataGP_20102011, dataGP_20112012, dataGP_20122013, dataGP_20132014);
+%outputs.PlotUptakebyPCT(dataGP_20102011, dataGP_20112012, dataGP_20122013, dataGP_20132014);
+outputs.PlotUptakebyPCT_combined(dataGP_20102011, dataGP_20112012, dataGP_20122013, dataGP_20132014,...
+                            dataPharmacy_20132014,...
+                            flist);
 
-    
+
+outputs.outputLocationPharmacyvsGP(dataPharmacy_20132014);    
  
   
 % 3. WHICH RISK GROUPS had most uptake in pharmacists vs GPs
