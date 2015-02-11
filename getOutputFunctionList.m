@@ -186,7 +186,7 @@ yearindex = 0;
         set(gca, 'XTick', 1:size(PCTNames,2))
         set(gca, 'XTickLabel', PCTNames(sortindex))
         xticklabel_rotate();
-        leg = legend('2010-11 (GP)', '2011-12 (GP)', '2012-13 (GP)', '2013-14 (GP)', '2013--14 (GP & Pharmacy)');
+        leg = legend('2010-11 (GP)', '2011-12 (GP)', '2012-13 (GP)', '2013-14 (GP)', '2013-14 (GP & Pharmacy)');
         set(leg, 'Location', 'NorthWest', 'FontSize', 14)
         legend('boxoff')
  end 
