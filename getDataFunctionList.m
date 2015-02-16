@@ -1,3 +1,10 @@
+function data = getDataFunctionList()
+
+data.ReadInData = @ReadInData;
+data.IncomeData = @IncomeData;
+
+end
+
 function data = ReadInData(datatype, years)
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -129,6 +136,27 @@ function data = ReadInData(datatype, years)
         data = NaN;
         error('Please specify whether pharmacy or GP data');
     end
+end
+
+function data = IncomeData()
+    
+        filename = 'HouseholdIncome2011';
+        fid = fopen(filename, 'r');
+        str = fgets(fid);
+        readinformat = '%s %f %f';
+        headerformat = '%s %s %s';
+        % read in header and data and close the file
+        headerlines = textscan(str, headerformat, 'Delimiter', '\t');
+        dataout = textscan(fid, readinformat, 'Delimiter', '\t');
+        fclose(fid);
+
+        % save as separate cells
+        for i = 1:size(headerlines,2)
+            header = headerlines{i};
+            header = header{1};
+            data.(header) = dataout{i};
+        end
+
 end
 
 function pc = getPostCode(i_str)

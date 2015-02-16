@@ -514,7 +514,7 @@ function plotCorrelationinUptake(datafileGP_year0, datafileGP_year1, datafileGP_
         rejig_shortnames(12:(end+1)) = shortnames(12:end);
         rejig_shortnames{12} = 'HAC';
        
-        text(secondarray.Mean, fracpharmarrayONLY, rejig_shortnames, 'horizontal','left', 'vertical','bottom')
+        text(secondarray.Mean, fracpharmarrayONLY, shortnames, 'horizontal','left', 'vertical','bottom')
         xlabel('Mean household income', 'FontSize', 14)
         ylabel('Fraction of doses administered at pharmacy', 'FontSize', 14)  
         set(gca, 'FontSize', 14)
@@ -523,7 +523,7 @@ function plotCorrelationinUptake(datafileGP_year0, datafileGP_year1, datafileGP_
         hold on;
         plot(secondarray.Median, fracpharmarrayONLY, 'k.', 'MarkerSize',14)
         plot([min(secondarray.Median), max(secondarray.Median)] , int_income2b + grad_income2b*[min(secondarray.Median), max(secondarray.Median)] , 'r--', 'LineWidth', 1.6)
-        text(secondarray.Median, fracpharmarrayONLY, rejig_shortnames, 'horizontal','left', 'vertical','bottom')
+        text(secondarray.Median, fracpharmarrayONLY, shortnames, 'horizontal','left', 'vertical','bottom')
         xlabel('Median household income', 'FontSize', 14)
         ylabel('Fraction of doses administered at pharmacy', 'FontSize', 14)  
         set(gca, 'FontSize', 14)

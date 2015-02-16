@@ -1,0 +1,28 @@
+function h = getFunctionList
+
+h.nulls = @calculateNulls;
+
+end
+
+
+
+function ss = calculateNulls(str_array)
+
+    s(1) = sum(ismember(str_array,'NULL'));
+    s(2) = sum(ismember(str_array,'Null'));
+    s(3) = sum(ismember(str_array,'null'));
+    s(4) = sum(ismember(str_array,'Unknown'));
+    s(5) = sum(ismember(str_array,'UNKNOWN'));
+    s(6) = sum(ismember(str_array,'unknown'));
+    s(7) = sum(ismember(str_array,'NONE'));
+    s(8) = sum(ismember(str_array,'None'));
+    s(9) = sum(ismember(str_array,'none'));
+    
+    ss = sum(s);
+end
+
+
+function indices = isNulls(str_array)
+
+
+end
