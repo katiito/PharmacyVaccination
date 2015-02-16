@@ -7,6 +7,9 @@ h.nullindex = @locateNulls;
 h.RelabelCCGasPCT = @RelabelCCGasPCT;
 h.RemovePCT = @RemovePCT;
 h.getShortNames = @getShortNames;
+h.CombineNeuro = @CombineNeuro;
+h.removeNaN = @removeNaN;
+h.removeCondition = @removeCondition;
 
 end
 
@@ -89,4 +92,30 @@ function ss = getShortNames(anystring)
     ss = [char(ss), ' '];
 end
 
+function [totstr orig] = CombineNeuro(mainstring, extrastring)
+    allfields = fields(mainstring);
+    
+    for i = 1:size(allfields)
+        fld = char(allfields(i));
+        totstr.(fld).Registered = arrayfun( @(c1,c2) (c1+c2), mainstring.(fld).Registered, extrastring.(fld).Registered);
+        totstr.(fld).Vaccinated = arrayfun( @(c1,c2) (c1+c2), mainstring.(fld).Vaccinated, extrastring.(fld).Vaccinated);
+    end
+    
+    orig = [];
+end
+
+function arraywithoutnans = removeNaN(array)
+
+  nanlocate = isnan(array);
+  arraywithoutnans = array(~nanlocate);
+    
+end
+
+function outstring = removeCondition(string)
+
+    outstring = regexprep(string,'Allpatients','Elderly');
+    outstring = regexprep(outstring,'(Patientswith)','');
+    outstring = [outstring(1), regexprep(outstring(2:end),'([A-Z])',' $1')];
+    
+end
 

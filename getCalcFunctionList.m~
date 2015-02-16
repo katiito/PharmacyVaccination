@@ -7,6 +7,7 @@ h.nullindex = @locateNulls;
 h.RelabelCCGasPCT = @RelabelCCGasPCT;
 h.RemovePCT = @RemovePCT;
 h.getShortNames = @getShortNames;
+h.CombineNeuro = @CombineNeuro;
 
 end
 
@@ -86,7 +87,20 @@ end
 function ss = getShortNames(anystring)
 
     ss = regexp(anystring, '^\S{3}', 'match');
-    ss = [ss' ' '];
+    ss = [char(ss), ' '];
+end
+
+function [totstr orig] = CombineNeuro(mainstring, extrastring)
+    allfields = fields(mainstring);
+    
+    for i = 1:size(allfields)
+        fld = char(allfields(i));
+        totstr.(fld).Registered = cellfun( @(c1,c2)combineCells (c1+c2), mainstring.(fld) + extrastring.(fld));
+        totstr.(fld).Vaccinate = cellfun( @(c1,c2)combineCells (c1+c2), mainstring.(fld) + extrastring.(fld));
+        totstr.(fld).Registered = cellfun( @(c1,c2)combineCells (c1+c2), mainstring.(fld) + extrastring.(fld));
+    end
+    
+    orig = [];
 end
 
 

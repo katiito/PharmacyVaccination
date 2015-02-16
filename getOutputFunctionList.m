@@ -531,8 +531,8 @@ function plotCorrelationinUptake(datafileGP_year0, datafileGP_year1, datafileGP_
          
         testx1 = uptakearray(:,2)-uptakearray(:,1); %difference between 2011-2 and 2012-13
         testx2 = uptakearray(:,3)-uptakearray(:,2); %difference between 2012-3 and 2013-14
-        [h1,p1,ci1,stats1] = ttest(testx1);
-        [h2,p2,ci2,stats2] = ttest(testx2);
+        [h1,p1,ci1,stats1] = ttest(testx1)
+        [h2,p2,ci2,stats2] = ttest(testx2)
         
 end
 
