@@ -79,20 +79,46 @@ function plotUptakebyRisk(year1data, year2data, year3data, year4data, year4pharm
     end
     
     % sort output
-    [frac_vac_sort sortindex] = sortrows(frac_vac, 'descend', 1);
-    dist_vac_sort = dist_vac(sortindex);
+    [frac_vac_sort sortindex] = sortrows(frac_vac);
+    frac_vac_sort = frac_vac_sort(end:-1:1,:);
+    sortindex = sortindex(end:-1:1);
+    dist_vac_sort = dist_vac(sortindex,:);
     labels = cellfun(f.removeCondition, Fields, 'UniformOutput', false);
     labels_sort = labels(sortindex);
-    subplot(2,1,1)
-    bar(frac_vac)
-    subplot(2,1,2)
-    bar(dist_vac)
-    set(gca, 'XTickLabel', {})
+    
+    leftmargin = 0.1;
+    bottommargin = 0.1;
+    plotheight = 0.4;
+    plotwidth = 0.8;
+    rowspace = 0.05;
+   
+    fig = figure;
+        %set(fig, 'Position', [100 100 1600 900]);
+        ss = get(0,'screensize');
+        set(gcf,'position',...
+                 [100, 100, ss(3), ss(4)]);
+    % axes position
+    ax(1) = axes('Position',  [leftmargin, bottommargin+plotheight+rowspace,    plotwidth, plotheight]);
+    ax(2) = axes('Position',  [leftmargin, bottommargin,                        plotwidth, plotheight]);
+        
+    
+    axes(ax(1));
+    hold on;
+    bar(frac_vac_sort)
+    set(gca, 'XTickLabel', {}, 'FontSize', 14)
+    xlim([0 11])
+    ylabel('w')
+    
+    axes(ax(2));
+    hold on;
+    bar(dist_vac_sort)
+    set(gca, 'XTickLabel', {},  'FontSize', 14)
     text(1:length(labels_sort),...
             zeros(1,length(labels_sort)), ...
             labels_sort, ...
             'VerticalAlign','top',...
             'HorizontalAlign','right',...
-            'Rotation',20)
-
+            'Rotation',20,...
+            'FontSize', 14)
+    xlim([0 11])
 end
