@@ -10,6 +10,8 @@ h.getShortNames = @getShortNames;
 h.CombineNeuro = @CombineNeuro;
 h.removeNaN = @removeNaN;
 h.removeCondition = @removeCondition;
+h.setInclusion = @setInclusion;
+h.replaceLabel = @replaceLabel;
 
 end
 
@@ -111,6 +113,7 @@ function arraywithoutnans = removeNaN(array)
     
 end
 
+%% get nicer looking labels for plotting
 function outstring = removeCondition(string)
 
     outstring = regexprep(string,'Allpatients','Elderly');
@@ -119,3 +122,41 @@ function outstring = removeCondition(string)
     
 end
 
+%% if inclusion criteria for pharmacy is 13-65, get the subcriteria
+function outstring = setInclusion(str1, str2)
+    if strcmpi(str1, '13 to 65')
+       outstring = str2; 
+    else
+       outstring = str1;
+    end
+end
+
+
+%% replace label for Pharmacy so it matches the GP labels
+function outstring = replaceLabel(old_str)
+
+    old_string = {'Aged 65 and over', 'Chronic heart disease', 'Chronic respiratory disease',...
+                            'Chronic kidney disease', 'Chronic liver disease', 'Diabetes mellitus', 'Immunosuppression due to disease or treatment',...
+                            'Chronic neurological disease', 'Pregnant woman', 'Carer of an elderly or disabled person'};
+                        
+    Fields = {'Elderly',...
+                  'PatientswithChronicHeartDisease',...
+                  'PatientswithChronicRespiratoryDisease',...
+                  'PatientswithChronicKidneyDisease',...
+                  'PatientswithChronicLiverDisease',...
+                  'PatientswithDiabetes',...
+                  'PatientswithImmunosuppression',...
+                  'PatientswithChronicNeurologicalDisease',...
+                  'PregnantWomen',...
+                  'Carers'}';
+              
+     index = find( ismember(old_string, old_str));
+     if ~isempty(index)
+         outstring = Fields(index);
+         outstring = outstring{1};
+     else
+         outstring = 'Other';
+     end
+    
+     
+end
