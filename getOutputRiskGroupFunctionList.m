@@ -57,8 +57,10 @@ function plotUptakebyRisk(year1data, year2data, year3data, year4data, year4pharm
                 total_reg{yearindex}.Elderly = sum(f.removeNaN(datafileGP.Allpatients.aged65andover.Registered));
               % add in pregnant women
               elseif strcmpi(fld, 'PregnantWomen')
-                  total_vac{yearindex}.PregnantWomen = sum(f.removeNaN(datafileGP.(fld).PregnantandNOTINaclinicalriskgroup.Vaccinated));
-                  total_reg{yearindex}.PregnantWomen = sum(f.removeNaN(datafileGP.(fld).PregnantandNOTINaclinicalriskgroup.Registered));
+                  total_vac{yearindex}.PregnantWomenRiskGroup = sum(f.removeNaN(datafileGP.(fld).PregnantandINaclinicalriskgroup.Vaccinated));
+                  total_reg{yearindex}.PregnantWomenRiskGroup = sum(f.removeNaN(datafileGP.(fld).PregnantandINaclinicalriskgroup.Registered));
+                  total_vac{yearindex}.PregnantWomenNotRiskGroup = sum(f.removeNaN(datafileGP.(fld).PregnantandNOTINaclinicalriskgroup.Vaccinated));
+                  total_reg{yearindex}.PregnantWomenNotRiskGroup = sum(f.removeNaN(datafileGP.(fld).PregnantandNOTINaclinicalriskgroup.Registered));
               % add in carers in whatever capacity
               elseif strcmpi(fld, 'Carers')
                    total_vac{yearindex}.Carers = sum(f.removeNaN(datafileGP.(fld).agedunder65notatriskwhofulfilthecarerdefinition.Vaccinated));
@@ -81,23 +83,25 @@ function plotUptakebyRisk(year1data, year2data, year3data, year4data, year4pharm
                 
                 
 
-                %% calculate totals (excluding elderly and carers)
-                riskgroupsreported_vaccinated(yearindex) = sum(array_vac(2:(end-1),yearindex));
-                riskgroupsreported_registered(yearindex) = sum(array_reg(2:(end-1),yearindex));
+                %% calculate totals (excluding elderly , pregnant women (not risk group), and carers)
+                riskgroupsreported_vaccinated(yearindex) = sum(array_vac(2:(end-2),yearindex));
+                riskgroupsreported_registered(yearindex) = sum(array_reg(2:(end-2),yearindex));
                 
-                %% calculate number of doses given to 16-65 (excluding carers)
+                %% calculate number of doses given to 16-65 (excluding carers, and pregnant women)
                 total_vaccinated_asreported(yearindex)  =  sum(f.removeNaN(datafileGP.TotalAtRiskpatients.aged16tounder65.Vaccinated)) - ...
+                                                           sum(f.removeNaN(datafileGP.PregnantWomen.PregnantandNOTINaclinicalriskgroup.Vaccinated)) - ...
                                                            sum(f.removeNaN(datafileGP.Carers.agedunder65notatriskwhofulfilthecarerdefinition.Vaccinated));
                 total_registered_asreported(yearindex)  =  sum(f.removeNaN(datafileGP.TotalAtRiskpatients.aged16tounder65.Registered)) - ...
+                                                           sum(f.removeNaN(datafileGP.PregnantWomen.PregnantandNOTINaclinicalriskgroup.Registered)) - ...
                                                            sum(f.removeNaN(datafileGP.Carers.agedunder65notatriskwhofulfilthecarerdefinition.Registered));
                           
                 %% calculating over-reporting due to co-morbidity data entry
-                overcountingfactor_vaccinated(yearindex) = riskgroupsreported_vaccinated(yearindex) ./ total_vaccinated_asreported(yearindex);
+                %overcountingfactor_vaccinated(yearindex) = riskgroupsreported_vaccinated(yearindex) ./ total_vaccinated_asreported(yearindex);
                 overcountingfactor_registered(yearindex) = riskgroupsreported_registered(yearindex) ./ total_registered_asreported(yearindex);
                 
                 %% reduce total vaccinated, registered by this over reporting factor, for 16-65 years noncarers
-                array_vac(2:(end-1),yearindex) = array_vac(2:(end-1),yearindex) / overcountingfactor_vaccinated(yearindex);
-                array_reg(2:(end-1),yearindex) = array_reg(2:(end-1),yearindex) / overcountingfactor_registered(yearindex);
+                array_vac(2:(end-2),yearindex) = array_vac(2:(end-2),yearindex) / overcountingfactor_registered(yearindex);
+                array_reg(2:(end-2),yearindex) = array_reg(2:(end-2),yearindex) / overcountingfactor_registered(yearindex);
                 
                 % add up total doses
                 TOTALreg(yearindex) = sum(array_reg(:,yearindex));
@@ -105,7 +109,12 @@ function plotUptakebyRisk(year1data, year2data, year3data, year4data, year4pharm
                 frac_vac(:,yearindex) = array_vac(:,yearindex) ./ array_reg(:,yearindex);
                 dist_vac(:,yearindex) = array_vac(:,yearindex) / TOTALvac(yearindex);
                 
-                prop_vac(:,yearindex) = array_vac(:,yearindex)./array_reg(:,yearindex);
+                %prop_vac(:,yearindex) = array_vac(:,yearindex)./array_reg(:,yearindex);
+                
+                % sds
+                frac_vac_sd(:,yearindex) = sqrt(frac_vac(:,yearindex).*(1-frac_vac(:,yearindex))./array_reg(:,yearindex));
+                dist_vac_sd = sqrt(dist_vac(:,yearindex).*(1-dist_vac(:,yearindex))/TOTALvac(yearindex));
+                
         %% pharmacy data
         if strcmpi(years, '2013_2014')
 
@@ -131,6 +140,9 @@ function plotUptakebyRisk(year1data, year2data, year3data, year4data, year4pharm
                 frac_atpharm = pharm_vac' ./ array_vac(:,yearindex);
                 frac_totatpharm = pharm_vac' ./ array_reg(:,yearindex);
                 
+                frac_atpharm_sd = sqrt(frac_atpharm.*(1-frac_atpharm)/array_vac(:,yearindex));
+                frac_totatpharm_sd = sqrt(frac_totatpharm.*(1-frac_totatpharm)/array_reg(:,yearindex));
+                
                 % calulate number of "Other" type of doses
                 others = sum(ismember(phmapped, 'Other'));
                 oo = sprintf('Number of doses at pharmacies given to "others" in 2013/14: %g (%.0f%%)', others, 100*others/size(phmapped,1));
@@ -150,6 +162,15 @@ function plotUptakebyRisk(year1data, year2data, year3data, year4data, year4pharm
     dist_vac_sort = dist_vac(sortindex,:);
     frac_atpharm_sort = frac_atpharm(sortindex);
     frac_totatpharm_sort = frac_totatpharm(sortindex);
+    
+    frac_vac_sort_sd = frac_vac_sd(sortindex,:);
+    dist_vac_sort_sd = dist_vac_sd(sortindex,:);
+    frac_atpharm_sort_sd = frac_atpharm_sd(sortindex);
+    frac_totatpharm_sort_sd = frac_totatpharm_sd(sortindex);
+    
+    % sds for metrics
+    
+    
     
     labels = cellfun(f.removeCondition, Fields, 'UniformOutput', false);
     labels_sort = labels(sortindex);
@@ -189,11 +210,15 @@ function plotUptakebyRisk(year1data, year2data, year3data, year4data, year4pharm
             'Rotation',20,...
             'FontSize', labelsize)
          box off;
-    title('Fraction of doses administered at pharmacy (2013-4)', 'FontSize', titlesize)
-           
+    title('a) Fraction of doses administered at pharmacy (2013-4)', 'FontSize', titlesize)
+      x = get(h, 'XData');
+    plot([x; x], [frac_atpharm_sort-1.96*frac_atpharm_sort_sd frac_atpharm_sort+1.96*frac_atpharm_sort_sd]', 'k-');
+    
+    
     %% TOP LEFT (fraction of risk groups administered vaccine at pharmacy)
     %% inset histogram
     axes(ax(2))
+    hold on;
 %                 rax = get(gca, 'Position');
 %                 axes('Position', [rax(1)+0.1*rax(4) rax(2)+0.25*rax(3) 0.35*rax(3) 0.5*rax(4)]);
     h1 = bar(frac_totatpharm_sort);
@@ -209,9 +234,10 @@ function plotUptakebyRisk(year1data, year2data, year3data, year4data, year4pharm
             'FontSize', labelsize)
 %                 hq = findobj(gca,'Type','patch');
 %                 hq.FaceColor = [0.8, 0.8, 0.9];
-                title('Fraction of registered patients receiving dose at pharmacy (2013-4)', 'FontSize', titlesize)
+                title('b) Fraction of registered patients receiving dose at pharmacy (2013-4)', 'FontSize', titlesize)
                 box off;
-               
+    x = get(h1, 'XData');
+    plot([x; x], [frac_totatpharm_sort-1.96*frac_totatpharm_sort_sd frac_totatpharm_sort+1.96*frac_totatpharm_sort_sd]', 'k-');           
 %         hold on;
 %         bar(frac_vac_sort)
 %         set(gca, 'XTickLabel', {}, 'FontSize', 14)
@@ -221,7 +247,7 @@ function plotUptakebyRisk(year1data, year2data, year3data, year4data, year4pharm
 %% BOTTOM (vaccine uptake by risk group)
     axes(ax(3));
     hold on;
-    bar(frac_vac_sort)
+    h2 = bar(frac_vac_sort);
     %bar(dist_vac_sort)
     set(gca, 'XTickLabel', {},  'FontSize', 18)
     text(1:length(labels_sort),...
@@ -231,7 +257,7 @@ function plotUptakebyRisk(year1data, year2data, year3data, year4data, year4pharm
             'HorizontalAlign','right',...
             'Rotation',20,...
             'FontSize', 18)
-    title('Fraction of registered patients vaccinated', 'FontSize', titlesize)
+    title('c) Fraction of registered patients vaccinated', 'FontSize', titlesize)
    % title('Distribution of vaccine allocation', 'FontSize', 20)
     xlim([0 11])
     ylim([0 1.2])
@@ -239,9 +265,19 @@ function plotUptakebyRisk(year1data, year2data, year3data, year4data, year4pharm
     leg = legend('2010-11 (GP)', '2011-12 (GP)', '2012-13 (GP)', '2013-14 (GP & Pharmacy)');
     set(leg, 'Location', 'NorthWest', 'FontSize', 18)
     legend('boxoff')
+    numgroups = size(frac_vac_sort, 1);
+    numbars = size(frac_vac_sort, 2);
+    groupwidth = min(0.8, numbars/(numbars+1.5));
+    for i = 1:numbars
+            % Based on barweb.m by Bolu Ajiboye from MATLAB File Exchange
+            x = (1:numgroups) - groupwidth/2 + (2*i-1) * groupwidth / (2*numbars);  % Aligning error bar with individual bar
+            plot([x; x], [frac_vac_sort(:,i)-1.96*frac_vac_sort_sd(:,i) frac_vac_sort(:,i)+1.96*frac_vac_sort_sd(:,i)]', 'k-');
+            %e = errorbar(x, allarray(:,i), allsd(:,i), 'k', 'linestyle', 'none');
+            %errorbar_tick(e,80);
+    end
                 %% inset histogram
                 rax = get(gca, 'Position');
-                axes('Position', [rax(1)+1.3*rax(4) rax(2)+0.25*rax(3) 0.35*rax(3) 0.4*rax(4)]);
+                axes('Position', [rax(1)+1.35*rax(4) rax(2)+0.26*rax(3) 0.35*rax(3) 0.4*rax(4)]);
                 
                 bar(dist_vac_sort)
                 %bar(frac_vac_sort)
@@ -262,8 +298,8 @@ function plotUptakebyRisk(year1data, year2data, year3data, year4data, year4pharm
                 
                 
         %% output stats
-        testx1 = prop_vac(:,3)-prop_vac(:,2); %difference between 2011-2 and 2012-13
-        testx2 = prop_vac(:,4)-prop_vac(:,3); %difference between 2012-3 and 2013-14
+        testx1 = frac_vac(:,3)-frac_vac(:,2); %difference between 2011-2 and 2012-13
+        testx2 = frac_vac(:,4)-frac_vac(:,3); %difference between 2012-3 and 2013-14
         [h1,p1,ci1,stats1] = ttest(testx1)
         [h2,p2,ci2,stats2] = ttest(testx2)
 end
