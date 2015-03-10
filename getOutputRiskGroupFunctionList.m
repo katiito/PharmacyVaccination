@@ -8,11 +8,13 @@ end
 
 function plotUptakebyRisk(year1data, year2data, year3data, year4data, year4pharmdata, f)
     
+
     % loop through years to 
     yearindex = 0;
     for years = {'2010_2011', '2011_2012', '2012_2013', '2013_2014'}   
         years = years{1};
         yearindex = yearindex + 1;
+        
         % pick the year
         if strcmp(years, '2010_2011')
             datafileGP = year1data;
@@ -21,6 +23,9 @@ function plotUptakebyRisk(year1data, year2data, year3data, year4data, year4pharm
                                             datafileGP.PatientswithStrokeTransientIschaemicAttackTIA);
                                             
             datafileGP = rmfield(datafileGP, 'PatientswithStrokeTransientIschaemicAttackTIA');
+            
+            array_vac = zeros(10,4);
+            array_reg = zeros(10,4);
             %datafileGP.PCTName = cellfun(f.RemovePCT, datafileGP.PCTName, 'UniformOutput', false);
         elseif strcmp(years, '2011_2012')
             datafileGP = year2data;
@@ -78,14 +83,14 @@ function plotUptakebyRisk(year1data, year2data, year3data, year4data, year4pharm
         
                 % combine all entries for total in risk groups
        
-                array_vac(:,yearindex) = struct2array(total_vac{yearindex});
-                array_reg(:,yearindex) = struct2array(total_reg{yearindex});
+                array_vac_uncombined(:,yearindex) = struct2array(total_vac{yearindex});
+                array_reg_uncombined(:,yearindex) = struct2array(total_reg{yearindex});
                 
                 
 
                 %% calculate totals (excluding elderly , pregnant women (not risk group), and carers)
-                riskgroupsreported_vaccinated(yearindex) = sum(array_vac(2:(end-2),yearindex));
-                riskgroupsreported_registered(yearindex) = sum(array_reg(2:(end-2),yearindex));
+                riskgroupsreported_vaccinated(yearindex) = sum(array_vac_uncombined(2:(end-2),yearindex));
+                riskgroupsreported_registered(yearindex) = sum(array_reg_uncombined(2:(end-2),yearindex));
                 
                 %% calculate number of doses given to 16-65 (excluding carers, and pregnant women)
                 total_vaccinated_asreported(yearindex)  =  sum(f.removeNaN(datafileGP.TotalAtRiskpatients.aged16tounder65.Vaccinated)) - ...
@@ -99,9 +104,25 @@ function plotUptakebyRisk(year1data, year2data, year3data, year4data, year4pharm
                 %overcountingfactor_vaccinated(yearindex) = riskgroupsreported_vaccinated(yearindex) ./ total_vaccinated_asreported(yearindex);
                 overcountingfactor_registered(yearindex) = riskgroupsreported_registered(yearindex) ./ total_registered_asreported(yearindex);
                 
-                %% reduce total vaccinated, registered by this over reporting factor, for 16-65 years noncarers
-                array_vac(2:(end-2),yearindex) = array_vac(2:(end-2),yearindex) / overcountingfactor_registered(yearindex);
-                array_reg(2:(end-2),yearindex) = array_reg(2:(end-2),yearindex) / overcountingfactor_registered(yearindex);
+                %% reduce total vaccinated, registered by this over reporting factor, for 16-65 years noncarers nonpregnant(non risk)
+                array_vac_uncombined(2:(end-2),yearindex) = array_vac_uncombined(2:(end-2),yearindex) / overcountingfactor_registered(yearindex);
+                array_reg_uncombined(2:(end-2),yearindex) = array_reg_uncombined(2:(end-2),yearindex) / overcountingfactor_registered(yearindex);
+                
+                %% set as new variable so can combined
+                array_vac(1:(end-2),yearindex) = array_vac_uncombined(1:(end-3),yearindex);
+                array_vac(end-1, yearindex) = array_vac_uncombined(end-2,yearindex) + array_vac_uncombined(end-1,yearindex);
+                array_vac(end, yearindex) = array_vac_uncombined(end,yearindex);
+                
+                array_reg(1:(end-2),yearindex) = array_reg_uncombined(1:(end-3),yearindex);
+                array_reg(end-1, yearindex) = array_reg_uncombined(end-2,yearindex) + array_reg_uncombined(end-1,yearindex);
+                array_reg(end, yearindex) = array_reg_uncombined(end,yearindex);
+                
+%                 %% combined pregnant women again
+%                 array_vac(end-1, yearindex) = array_vac(end-1, yearindex) + array_vac(end-2, yearindex); 
+%                 array_vac(end-2, yearindex) = [];
+%                 array_reg(end-1, yearindex) = array_reg(end-1, yearindex) + array_reg(end-2, yearindex); 
+%                 array_reg(end-2, yearindex) = [];
+                
                 
                 % add up total doses
                 TOTALreg(yearindex) = sum(array_reg(:,yearindex));

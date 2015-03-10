@@ -12,6 +12,7 @@ dataGP_20102011 = data.ReadInData('GP', '2010_2011');
 dataGP_20112012 = data.ReadInData('GP', '2011_2012');
 dataGP_20122013 = data.ReadInData('GP', '2012_2013');
 dataGP_20132014 = data.ReadInData('GP', '2013_2014');
+dataGP_20142015 = data.ReadInData('GP', '2014_2015');
 
 incomedata_2011 = data.IncomeData();
 

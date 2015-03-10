@@ -59,6 +59,11 @@ function data = ReadInData(datatype, years)
             NumColsPre = 10;
             MergedIndices1 = [10,12,12,9*ones(1,10),3];
             MergedIndices2 = [10, 3*ones(1,38), 1, 1, 1];
+        elseif strcmp(years, '2014_2015')
+            NumCols = 260;
+            NumColsPre = 10;
+            MergedIndices1 = [10, 25, 20, 40, 20*ones(1,8),5];
+            MergedIndices2 = [10, 5*ones(1,49), 1, 1, 1, 1, 1];
         else
             NumCols = 109;
             NumColsPre = 10;

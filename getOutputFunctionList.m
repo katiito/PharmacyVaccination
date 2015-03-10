@@ -487,6 +487,14 @@ function plotCorrelationinUptake(datafileGP_year0, datafileGP_year1, datafileGP_
         mdl_income1b = fitlm(secondarray.Mean, fracpharmarrayONLY); coeff_income1b = table2array(mdl_income1b.Coefficients); int_income1b = coeff_income1b(1,1); grad_income1b = coeff_income1b(2,1);
         mdl_income2b = fitlm(secondarray.Median, fracpharmarrayONLY); coeff_income2b = table2array(mdl_income2b.Coefficients); int_income2b = coeff_income2b(1,1); grad_income2b = coeff_income2b(2,1);
         
+        %lines of best fit (uptake)
+        mdl_income3a = fitlm(firstarray.Mean, y1); %coeff_income1a = table2array(mdl_income1a.Coefficients); int_income1a = coeff_income1a(1,1); grad_income1a = coeff_income1a(2,1);
+        mdl_income4a = fitlm(firstarray.Median, y1); %coeff_income2a = table2array(mdl_income2a.Coefficients); int_income2a = coeff_income2a(1,1); grad_income2a = coeff_income2a(2,1);
+        
+        
+        mdl_income3b = fitlm(secondarray.Mean, y1); %coeff_income1b = table2array(mdl_income1b.Coefficients); int_income1b = coeff_income1b(1,1); grad_income1b = coeff_income1b(2,1);
+        mdl_income4b = fitlm(secondarray.Median, y1); %coeff_income2b = table2array(mdl_income2b.Coefficients); int_income2b = coeff_income2b(1,1); grad_income2b = coeff_income2b(2,1);
+        
         
         
         %plots
