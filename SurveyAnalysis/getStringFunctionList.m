@@ -3,7 +3,8 @@ function f = getStringFunctionList()
 
     f.countEntries = @countEntries;
     f.zerotonan = @zerotonan;
-
+    f.sumUp = @sumUp;
+    f.sumUpVals = @sumUpVals;
 end
 
 
@@ -24,6 +25,21 @@ function count = countEntries(data, removelastentry)
     
 end
 
+function count = sumUp(cell)
+
+    f = @(str) ~strcmp(str, '');
+    count = sum(cellfun(f, cell));
+
+   
+
+end
+
+function count = sumUpVals(cell, ref)
+
+    f = @(str) strcmpi(str, ref);
+    count = sum(cellfun(f, cell));
+
+end
 
 function a = zerotonan(a)
 
@@ -33,3 +49,4 @@ function a = zerotonan(a)
     
 
 end
+

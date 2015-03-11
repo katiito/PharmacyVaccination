@@ -178,7 +178,7 @@ yearindex = 0;
                 % prob that given dose administered at pharmacy 
                 %fracPharmONLY{1}.(looppct) = dosecount.(looppct) / (TotalVacc.(looppct) + dosecount.(looppct));
                 fracPharmONLY{1}.(looppct) = dosecount.(looppct) / (TotalVacc.(looppct));
-                sdVaccPharm3{1}.(looppct) = sqrt(fracPharmONLY{1}.(looppct)*(1-fracPharmONLY{1}.(looppct))/(TotalVacc.(looppct) + dosecount.(looppct)));
+                sdVaccPharm3{1}.(looppct) = sqrt(fracPharmONLY{1}.(looppct)*(1-fracPharmONLY{1}.(looppct))/(TotalVacc.(looppct)));
                 
             end
             
