@@ -20,8 +20,11 @@ pharmacycosts = cost.CalculateAdminCost(pharmacydata, func);
 %plots.plotAwareness(pharmacydata, gpdata, func)
 
 %% BRANDS
-plots.plotBrands(pharmacydata, gpdata, func)
+%plots.plotBrands(pharmacydata, gpdata, func)
 
 %% GP questions about vaccine practices
 %plots.plotGPservice(gpdata, func)
+
+%% COSTS
+plots.plotCosts(pharmacycosts);
 end

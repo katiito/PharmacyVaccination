@@ -4,6 +4,8 @@ plots.plotOpinions = @plotOpinions;
 plots.plotAwareness = @plotAwareness;
 plots.plotBrands = @plotBrands;
 plots.plotGPservice = @plotGPservice;
+plots.plotCosts = @plotCosts;
+
 end
 
 
@@ -279,7 +281,7 @@ function plotAwareness(pharmacydata, gpdata, f)
         bottommargin = 0.05;
         columnspace = 0.03;
         rowspace = 0.08;
-        xlimits = [0 32];
+        %xlimits = [0 32];
         ylimits = [0 1];
         %top row
         ax(1) = axes('Position',  [leftmargin,                           bottommargin + rowspace + plotheight, plotwidth, plotheight]);
@@ -444,7 +446,254 @@ end
 
 
 function plotGPservice(gpdata, f)
+        
+        %% who administers
+        admin_gponly = f.sumUpVals(gpdata.WhoAdministers.Response, 'Only GP');
+        admin_mostlygp = f.sumUpVals(gpdata.WhoAdministers.Response, 'Mostly GP, but sometimes nurse');
+        admin_both = f.sumUpVals(gpdata.WhoAdministers.Response, 'Both GP and nurse');
+        admin_mostlynurse = f.sumUpVals(gpdata.WhoAdministers.Response, 'Mostly nurse, but sometimes GP');
+        admin_nurseonly = f.sumUpVals(gpdata.WhoAdministers.Response, 'Only nurse');
 
-    
+        admin_total = admin_gponly + admin_nurseonly + admin_both + admin_mostlygp + admin_mostlynurse;
+        
+        adminfrac_gponly = admin_gponly / admin_total;
+        adminfrac_mostlygp = admin_mostlygp / admin_total;
+        adminfrac_both = admin_both / admin_total;
+        adminfrac_mostlynurse = admin_mostlynurse / admin_total;
+        adminfrac_nurseonly = admin_nurseonly / admin_total;
+        
+        adminarray = [adminfrac_gponly, adminfrac_mostlygp, adminfrac_both, adminfrac_mostlynurse, adminfrac_nurseonly];
+        adminarray_sd = sqrt(adminarray.*(1-adminarray)/admin_total);
+        
+        admin_names = {'GP only'
+                 'Both GP and nurse'
+                 'Mostly GP'
+                 'Mostly nurse'
+                 'Only nurse'};
+             
+        %% when administered
+        when_regular = f.sumUpVals(gpdata.WhenOffered.Response, 'Only during regular surgery hours');
+        when_both = f.sumUpVals(gpdata.WhenOffered.Response, 'Both during regular surgery hours and extended hours');
+        when_extended = f.sumUpVals(gpdata.WhenOffered.Response, 'Only during extended hours on evenings and weekends');
+       
+        when_total = when_regular + when_both + when_extended;
+        
+        fracwhen_regular = when_regular / when_total;
+        fracwhen_both = when_both / when_total;
+        fracwhen_extended = when_extended / when_total;
+        
+        whenarray = [fracwhen_regular, fracwhen_both, fracwhen_extended];
+        whenarray_sd = sqrt(whenarray.*(1-whenarray)/when_total);
+        
+        when_names = {'Regular surgery hours'
+                 'Regular hours & eve/wkend'
+                 'Evenings/weekends'};  
+             
+        %% how administered
+        how_walkin = f.sumUpVals(gpdata.HowOffered.Response, 'Walk-in clinic');
+        how_both = f.sumUpVals(gpdata.HowOffered.Response, 'Both walk-in clinics and by appointment');
+        how_appt = f.sumUpVals(gpdata.HowOffered.Response, 'By appointment only');
+       
+        how_total = how_walkin + how_both + how_appt;
+        
+        frachow_walkin = how_walkin / how_total;
+        frachow_both = how_both / how_total;
+        frachow_appt = how_appt / how_total;
+        
+        howarray = [frachow_walkin, frachow_both, frachow_appt];
+        howarray_sd = sqrt(howarray.*(1-howarray)/how_total);
+        
+        how_names = {'Walk-in clinic'
+                 'Walk-in & appointment'
+                 'Appointment only'}; 
+             
+         %% shingles vaccine
+        shingles_yes = f.sumUpVals(gpdata.OfferShingles.Response, 'yes');
+        shingles_no = f.sumUpVals(gpdata.OfferShingles.Response, 'no');
+        
+        shingles_total = shingles_yes + shingles_no;
+        
+        frac_shingles_yes = shingles_yes / shingles_total;
+        frac_shingles_no = shingles_no / shingles_total;
+        
+        shinglesarray = [frac_shingles_yes, frac_shingles_no];
+        shinglesarray_sd = sqrt(shinglesarray.*(1-shinglesarray)/shingles_total);
+        
+        shingles_names = {'Yes'
+                 'No'}; 
+             
+        %% how many oppportunistic shingles?
+        [shinglesopp, xmidpts] = hist(gpdata.OfferShingles.ShinglesUptake);
+        shinglesopp_total = sum(shinglesopp(~isnan(shinglesopp)));
+        shinglesopparray = shinglesopp / shinglesopp_total;
+             
+        close all
+        fig = figure;
+        titlesize = 16;
+        labelsize = 14;
+        legendsize = 14;
+        
+        plotwidth = 0.45;
+        plotheight = 0.35;
+        leftmargin = 0.04;
+        %rightmargin = 0.05;
+        bottommargin = 0.11;
+        columnspace = 0.03;
+        rowspace = 0.13;
+        %xlimits = [0 32];
+        ylimits = [0 1];
+        set(gcf,'position',...
+          [100, 100, 1800, 1200]);
+      
+      
+        %top row
+        ax(1) = axes('Position',  [leftmargin,                           bottommargin + rowspace + plotheight, plotwidth, plotheight]);
+        ax(2) = axes('Position',  [leftmargin+plotwidth+columnspace,     bottommargin + rowspace + plotheight, plotwidth, plotheight]);
+        % bottom row
+        ax(3) = axes('Position',  [leftmargin,                           bottommargin, plotwidth, plotheight]);
+        ax(4) = axes('Position',  [leftmargin+plotwidth+columnspace,     bottommargin, plotwidth, plotheight]);
+        % inset
+        rax = get(ax(4), 'Position');
+        ax(5) = axes('Position', [rax(1)+0.75*rax(4) rax(2)+0.25*rax(3) 0.35*rax(3) 0.5*rax(4)]);
+        
+        
+        axes(ax(1))
+        hold on;
+        h1 = bar(adminarray, 'y');
+                set(gca, 'FontSize', labelsize)
+                title('a) Who administers the flu vaccine in your practice', 'FontSize', titlesize)
+                set(gca, 'XTickLabel', {})
+                set(gca, 'XTick', 1:size(admin_names,2))
+                text(1:length(admin_names),...
+                    zeros(1,length(admin_names)), ...
+                    admin_names, ...
+                    'VerticalAlign','top',...
+                    'HorizontalAlign','right',...
+                    'Rotation',45,...
+                    'FontSize', labelsize)
+                box off
+                ylim(ylimits)
+                x = get(h1, 'XData');
+                plot([x; x], [adminarray-1.96*adminarray_sd; adminarray+1.96*adminarray_sd], 'k-');
+                set(gca, 'XTick', 1:size(admin_names,1))                
+                ylabel('Fraction of respondents', 'FontSize', titlesize)
+                
+        axes(ax(2))
+        hold on;
+        h2 = bar(whenarray, 'y');
+                set(gca, 'FontSize', labelsize)
+                title('b) When do you administer flu vaccines?', 'FontSize', titlesize)
+                set(gca, 'YTickLabel', {})
+                set(gca, 'XTick', 1:size(when_names,2))
+                text(1:length(when_names),...
+                    zeros(1,length(when_names)), ...
+                    when_names, ...
+                    'VerticalAlign','top',...
+                    'HorizontalAlign','right',...
+                    'Rotation',45,...
+                    'FontSize', labelsize)
+                box off
+                ylim(ylimits)
+                x = get(h2, 'XData');
+                plot([x; x], [whenarray-1.96*whenarray_sd; whenarray+1.96*whenarray_sd], 'k-');
+                set(gca, 'XTick', 1:size(when_names,1))                
+                set(gca, 'XTick', {})
+                
+        axes(ax(3))
+        hold on;
+        h3 = bar(howarray, 'y');
+                set(gca, 'FontSize', labelsize)
+                title('c) How do you administer flu vaccines?', 'FontSize', titlesize)
+                set(gca, 'XTickLabel', {})
+                set(gca, 'XTick', 1:size(how_names,2))
+                text(1:length(how_names),...
+                    zeros(1,length(how_names)), ...
+                    how_names, ...
+                    'VerticalAlign','top',...
+                    'HorizontalAlign','right',...
+                    'Rotation',45,...
+                    'FontSize', labelsize)
+                box off
+                ylim(ylimits)
+                x = get(h3, 'XData');
+                plot([x; x], [howarray-1.96*howarray_sd; howarray+1.96*howarray_sd], 'k-');
+                set(gca, 'XTick', 1:size(how_names,1))                
+                ylabel('Fraction of respondents', 'FontSize', titlesize)
+        
+        axes(ax(4))
+        hold on;
+        h4 = bar(shinglesarray, 'y');
+                xlim([0.5 2.5])
+                title('d) Do you offer the Shingles vaccine to eligible patients if they receive the flu vaccine?', 'FontSize', titlesize)
+                set(gca, 'XTick', 1:size(shingles_names,1))
+                set(gca, 'YTickLabel',{})
+                set(gca, 'XTickLabel', shingles_names, 'FontSize', labelsize)
+%                 text(1:length(shingles_names),...
+%                     zeros(1,length(shingles_names)), ...
+%                     shingles_names, ...
+%                     'VerticalAlign','top',...
+%                     'HorizontalAlign','right',...
+%                     'Rotation',45)
+                box off
+                ylim(ylimits)
+                x = get(h4, 'XData');
+                plot([x; x], [shinglesarray-1.96*shinglesarray_sd; shinglesarray+1.96*shinglesarray_sd], 'k-');           
+                set(gca, 'XTick', {})
+                
+       axes(ax(5))
+        hold on;
+        h5 = bar(xmidpts, shinglesopparray, 'y');
+                %xlim([0.5 2.5])
+                title('Fraction of opportunistic shingles vaccines', 'FontSize', 0.8*titlesize)
+                %set(gca, 'XTick', 1:size(shingles_names,1))
+                %set(gca, 'XTickLabel', shingles_names, 'FontSize', labelsize)
+%                 text(1:length(shingles_names),...
+%                     zeros(1,length(shingles_names)), ...
+%                     shingles_names, ...
+%                     'VerticalAlign','top',...
+%                     'HorizontalAlign','right',...
+%                     'Rotation',45)
+                box off
+                ylim([0 0.7])
+%                 x = get(h4, 'XData');
+%                 %plot([x; x], [shinglesarray-1.96*shinglesarray_sd; shinglesarray+1.96*shinglesarray_sd], 'k-');           
+%                 set(gca, 'XTick', {})
+       
+end
+
+function plotCosts(costdata)
+close all
+        fig = figure;
+        titlesize = 16;
+        labelsize = 14;
+        legendsize = 14;
+        
+        plotwidth = 0.25;
+        plotheight = 0.37;
+        leftmargin = 0.04;
+        %rightmargin = 0.05;
+        bottommargin = 0.11;
+        columnspace = 0.03;
+        rowspace = 0.13;
+        %xlimits = [0 32];
+        ylimits = [0 1];
+        set(gcf,'position',...
+          [100, 100, 1800, 1200]);
+    %top row
+        ax(1) = axes('Position',  [leftmargin,                           bottommargin + rowspace + plotheight, plotwidth, plotheight]);
+        ax(2) = axes('Position',  [leftmargin+plotwidth+columnspace,     bottommargin + rowspace + plotheight, plotwidth, plotheight]);
+        ax(3) = axes('Position',  [leftmargin+2*plotwidth+2*columnspace,   bottommargin + rowspace + plotheight, plotwidth, plotheight]);
+        % bottom row
+        ax(4) = axes('Position',  [leftmargin,                               bottommargin, 1.5*plotwidth, plotheight]);
+        ax(5) = axes('Position',  [leftmargin+1.5*plotwidth+2*columnspace,         bottommargin, 1.5*plotwidth, plotheight]);
+        
+        allfields = fields(costdata);
+        index = 0;
+        for fld = allfields'
+            fld = fld{1};
+            index = index+1;
+            axes(ax(index))
+            hist(costdata.(fld), 10)
+        end
 
 end
