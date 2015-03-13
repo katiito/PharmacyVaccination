@@ -2,6 +2,7 @@ function plots = getPlotFunctionList()
 
 plots.plotOpinions = @plotOpinions;
 plots.plotAwareness = @plotAwareness;
+plots.plotBrands = @plotBrands;
 plots.plotGPservice = @plotGPservice;
 end
 
@@ -171,14 +172,18 @@ function plotAwareness(pharmacydata, gpdata, f)
         numyes_pharm = f.sumUp(pharmacydata.UptakeProblem.Yes); 
         numno_pharm = f.sumUp(pharmacydata.UptakeProblem.No); 
   
+        num_pharm_total = numyes_pharm + numno_pharm;
+        
         numyes_gp    = f.sumUpVals(gpdata.UptakeProblem.Response, 'yes'); 
         numno_gp    = f.sumUpVals(gpdata.UptakeProblem.Response, 'no'); 
 
-        fracyes_pharm = numyes_pharm / (numyes_pharm + numno_pharm);
-        fracyes_gp    = numyes_gp / (numyes_gp + numno_gp);
+        num_gp_total = numyes_gp + numno_gp;
+        
+        fracyes_pharm = numyes_pharm / num_pharm_total;
+        fracyes_gp    = numyes_gp / num_gp_total;
 
         problemarray = [fracyes_pharm, fracyes_gp]';
-        problemarray_sd = sqrt(problemarray.*(1-problemarray)./[total_number_patients_pharm; total_number_patients_gp]);
+        problemarray_sd = sqrt(problemarray.*(1-problemarray)./[num_pharm_total; num_gp_total]);
         
         
         %% pharmacy vaccination is a good idea (yes / no / mixed opinions)
@@ -199,7 +204,7 @@ function plotAwareness(pharmacydata, gpdata, f)
         PHfracmb_gp = PHnummb_gp/PHtotal_gp;
         
         goodideaarray = [[PHfracyes_pharm  PHfracno_pharm PHfracmb_pharm]; [PHfracyes_gp  PHfracno_gp PHfracmb_gp]]';
-        goodideaarray_sd = sqrt(goodideaarray.*(1-goodideaarray)./repmat([total_number_patients_pharm, total_number_patients_gp], 3, 1));
+        goodideaarray_sd = sqrt(goodideaarray.*(1-goodideaarray)./repmat([PHtotal_pharm, PHtotal_gp], 3, 1));
         
         
         %% inputting data easy (yes / no / mixed opinions)
@@ -213,31 +218,81 @@ function plotAwareness(pharmacydata, gpdata, f)
         inputeasyfrac_mb = inputeasy_mb / inputeasy_total;
         
         easyinputarray = [inputeasyfrac_yes, inputeasyfrac_no, inputeasyfrac_mb];
-        easyinputarray_sd = sqrt(easyinputarray.*(1-easyinputarray)/total_number_patients_gp);
-               
+        easyinputarray_sd = sqrt(easyinputarray.*(1-easyinputarray)/inputeasy_total);
+             
+        
+        
+        %% would like to increase uptake
+        numNoIncrease = f.sumUp(pharmacydata.IncreaseUptake.NoIwouldliketodecreasethenumberofpeople);
+        numNoMaintain = f.sumUp(pharmacydata.IncreaseUptake.NoIwouldliketomaintainthesamenumberofpeople);
+        numYesIncrease = f.sumUp(pharmacydata.IncreaseUptake.YesIwouldliketoincreasethenumberofpeople);
+        num_increase_total = numNoIncrease + numNoMaintain + numYesIncrease;
+        
+        fracNoIncrease = numNoIncrease / num_increase_total;
+        fracNoMaintain = numNoMaintain / num_increase_total;
+        fracYesIncrease = numYesIncrease / num_increase_total;
+        
+        changeservicearray = [fracNoIncrease, fracNoMaintain, fracYesIncrease];
+        changeservicearray_sd = sqrt(changeservicearray.*(1-changeservicearray)/num_increase_total);
+        
+        %% repeat customers
+        numRCyes = f.sumUp(pharmacydata.RepeatCustom.Yes);
+        numRCno = f.sumUp(pharmacydata.RepeatCustom.No);
+        numRCunsure = f.sumUp(pharmacydata.RepeatCustom.Unsure);
+        num_RC_total = numRCyes + numRCno + numRCunsure;
+        
+        fracRCyes = numRCyes / num_RC_total;
+        fracRCno = numRCno / num_RC_total;
+        fracRCunsure = numRCunsure / num_RC_total;
+        
+        repeatcustomerarray = [fracRCyes, fracRCno, fracRCunsure];
+        repeatcustomerarray_sd = sqrt(repeatcustomerarray.*(1-repeatcustomerarray)/num_RC_total);
+        
+        
+        %% repeat customers
+        percentagearray = pharmacydata.RepeatPC.Percentage;
+%         numRCyes = f.sumUp(pharmacydata.RepeatPC.Percentage);
+% %         numRCno = f.sumUp(pharmacydata.RepeatCustom.No);
+% %         numRCunsure = f.sumUp(pharmacydata.RepeatCustom.Unsure);
+% %         num_RC_total = numRCyes + numRCno + numRCunsure;
+% %         
+% %         fracRCyes = numRCyes / num_RC_total;
+% %         fracRCno = numRCno / num_RC_total;
+% %         fracRCunsure = numRCunsure / num_RC_total;
+% %         
+%         repeatcustomerarray = [fracRCyes, fracRCno, fracRCunsure];
+%         repeatcustomerarray_sd = sqrt(repeatcustomerarray.*(1-repeatcustomerarray)/num_RC_total);
+%         
+        
+        
+        
         close all
         fig = figure;
         titlesize = 16;
         labelsize = 16;
         legendsize = 14;
-        ylimits = [0 1];
+        
         plotwidth = 0.3;
-        plotheight = 0.8;
-        leftmargin = 0.05;
+        plotheight = 0.4;
+        leftmargin = 0.04;
         %rightmargin = 0.05;
-        bottommargin = 0.1;
-        columnspace = 0.01;
+        bottommargin = 0.05;
+        columnspace = 0.03;
         rowspace = 0.08;
         xlimits = [0 32];
         ylimits = [0 1];
         %top row
-        ax(1) = axes('Position',  [leftmargin,                           bottommargin, plotwidth, plotheight]);
-        ax(2) = axes('Position',  [leftmargin+plotwidth+columnspace,     bottommargin, plotwidth, plotheight]);
-        ax(3) = axes('Position',  [leftmargin+2*plotwidth+2*columnspace, bottommargin, plotwidth, plotheight]);
-
+        ax(1) = axes('Position',  [leftmargin,                           bottommargin + rowspace + plotheight, plotwidth, plotheight]);
+        ax(2) = axes('Position',  [leftmargin+plotwidth+0.5*columnspace,     bottommargin + rowspace + plotheight, plotwidth, plotheight]);
+        ax(3) = axes('Position',  [leftmargin+2*plotwidth+1.5*columnspace, bottommargin + rowspace + plotheight, plotwidth, plotheight]);
+        % bottom row
+        ax(4) = axes('Position',  [leftmargin,                           bottommargin, plotwidth, plotheight]);
+        ax(5) = axes('Position',  [leftmargin+plotwidth+0.5*columnspace,     bottommargin, plotwidth, plotheight]);
+        ax(6) = axes('Position',  [leftmargin+2*plotwidth+1.5*columnspace, bottommargin, plotwidth, plotheight]);
+        
         %ss = get(0,'screensize');
          set(gcf,'position',...
-          [100, 100, 1600, 400]);
+          [100, 100, 1700, 900]);
         %subplot(1,3,1),
         axes(ax(1)), hold on
             h(1) = bar(1,problemarray(1));
@@ -258,7 +313,6 @@ function plotAwareness(pharmacydata, gpdata, f)
         axes(ax(2)), hold on
         %subplot(1,3,2)
              bar(goodideaarray)
-             set(gca, 'XTickLabel', {'Yes', 'No', 'Mixed opinions'}, 'FontSize', labelsize)
              ylim(ylimits)
              title('b) Is pharmacy vaccination a good idea?', 'FontSize', titlesize)
              set(gca, 'YTickLabel', {});
@@ -266,7 +320,6 @@ function plotAwareness(pharmacydata, gpdata, f)
              numgroups = size(goodideaarray, 1);
              numbars = size(goodideaarray, 2);
              groupwidth = min(0.8, numbars/(numbars+1.5));
-        
             for i = 1:numbars
                 % Based on barweb.m by Bolu Ajiboye from MATLAB File Exchange
                 x = (1:numgroups) - groupwidth/2 + (2*i-1) * groupwidth / (2*numbars);  % Aligning error bar with individual bar
@@ -274,22 +327,124 @@ function plotAwareness(pharmacydata, gpdata, f)
                 %e = errorbar(x, allarray(:,i), allsd(:,i), 'k', 'linestyle', 'none');
                 %errorbar_tick(e,80);
             end
+            set(gca, 'XTick', 1:3)
+            set(gca, 'XTickLabel', {'Yes', 'No', 'Mixed opinions'}, 'FontSize', labelsize)
         %subplot(1,3,3)
         axes(ax(3)), hold on
-            h2 = bar(easyinputarray);
-            set(gca, 'XTickLabel', {'Yes', 'No', 'Mixed opinions'}, 'FontSize', labelsize)
+            h2 = bar(easyinputarray, 'y');
              ylim(ylimits)
              title('c) Is pharmacy vaccine uptake data easy to input?', 'FontSize', titlesize)
              set(gca, 'YTickLabel', {});
              box off
              x2 = get(h2, 'XData');
              plot([x2; x2], [easyinputarray-1.96*easyinputarray_sd; easyinputarray+1.96*easyinputarray_sd], 'k-');
+             set(gca, 'XTick', 1:3)
+            set(gca, 'XTickLabel', {'Yes', 'No', 'Mixed opinions'}, 'FontSize', labelsize)
+            
+        axes(ax(4)), hold on
+            h3 = bar(changeservicearray);
+             ylim(ylimits)
+             title('d) Woud you like to increase your flu vaccine service?', 'FontSize', titlesize)
+             %set(gca, 'YTickLabel', {});
+             box off
+             x3 = get(h3, 'XData');
+             plot([x3; x3], [changeservicearray-1.96*changeservicearray_sd; changeservicearray+1.96*changeservicearray_sd], 'k-');
+             set(gca, 'XTick', 1:3)
+            set(gca, 'XTickLabel', {'No, decrease', 'No, maintain', 'Yes increase'}, 'FontSize', labelsize)
+             ylabel('Fraction of respondents', 'FontSize', labelsize)
+        
+        axes(ax(5)), hold on
+            h4 = bar(repeatcustomerarray);
+             ylim(ylimits)
+             title('d) Do you get much repeat custom for flu vaccines?', 'FontSize', titlesize)
+             set(gca, 'YTickLabel', {});
+             box off
+             x4 = get(h4, 'XData');
+             plot([x4; x4], [repeatcustomerarray-1.96*repeatcustomerarray_sd; repeatcustomerarray+1.96*repeatcustomerarray_sd], 'k-');
+             set(gca, 'XTick', 1:3)
+            set(gca, 'XTickLabel', {'Yes', 'No', 'Unsure'}, 'FontSize', labelsize)
+             %ylabel('Fraction of respondents', 'FontSize', labelsize)
              
-         
+        axes(ax(6)), hold on
+            [h5, midpoints] = hist(percentagearray);
+            total = sum(h5);
+            plotarray = h5 / total;
+            h6 = bar(midpoints, plotarray);
+            title('e) How many customers had the flu vaccine the previous year?', 'FontSize', titlesize)
+            %ylabel('Frequency of respondents', 'FontSize', labelsize)
+            xlabel('Percentage', 'FontSize', labelsize)
+            set(gca, 'FontSize', labelsize)
+end
+
+function plotBrands(pharmacydata, gpdata, f)
+
+        allbrands = fields(gpdata.Brand)';
+        
+        for brand = allbrands
+            brand = brand{1}; 
+            countpharm.(brand) = f.sumUp(pharmacydata.Brand.(brand));
+            countgp.(brand) = f.sumUp(gpdata.Brand.(brand)); 
+        end
+        
+        brandsarray_pharm = struct2array(countpharm);
+        brandsarray_gp = struct2array(countgp);
+        
+        totals_pharm = sum(brandsarray_pharm);
+        totals_gp = sum(brandsarray_gp);
+        
+         h_pharm = brandsarray_pharm / totals_pharm;
+         h_gp = brandsarray_gp / totals_gp;
+        
+        names = {'Influvac (Abbott)'
+                'Imuvac (Abbott)'
+                'FluarixTetra (AstraZeneca)'
+                'Fluarix (AstraZeneca)'
+                'Imuvac (MASTA)'
+                'Enzira (MASTA)'
+                'Inactivated Vaccine BP (MASTA)'
+                'Influvac (MASTA)'
+                'CSL Inactivated Vaccine (MASTA)'
+                'Agrippal (Novartis)'
+                'Optaflu (Novartis)'
+                'CSL Inactivated Vaccine (Pfizer)'
+                'Enzira (Pfizer)'
+                'Inactivated Vaccine BP (SPMSD)'
+                'Intanza (SPMSD)'
+                'Unsure'
+                'I don''t want to say'};
+        
+            
+        labelsize = 13;
+        titlesize = 16;
+        leftmargin = 0.1;
+        bottommargin = 0.25;
+        plotwidth = 0.8;
+        plotheight = 0.6;
+        fig = figure;
+        set(fig, 'Position', [100, 100, 1400, 600])
+        ax = axes('Position', [leftmargin, bottommargin, plotwidth, plotheight]);
+        axes(ax)
+        bar([h_pharm; h_gp]')
+        box off;
+        set(gca, 'XTick', 1:size(names,1), 'FontSize', labelsize)
+        set(gca, 'XTickLabel', {})
+        title('Brand used for seasonal influena administration 2014/15', 'FontSize', titlesize)
+        leg=  legend('Pharmacy delivery', 'GP delivery');
+        legend('boxoff')
+        set(leg, 'FontSize', titlesize)
+        ylabel('Fraction of vaccine doses', 'FontSize', titlesize)
+        text(1:length(names),...
+            zeros(1,length(names)), ...
+            names, ...
+            'VerticalAlign','top',...
+            'HorizontalAlign','right',...
+            'Rotation',45,...
+            'FontSize', labelsize)
 end
 
 
 function plotGPservice(gpdata, f)
 
+    
 
 end

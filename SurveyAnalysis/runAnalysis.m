@@ -17,8 +17,11 @@ pharmacycosts = cost.CalculateAdminCost(pharmacydata, func);
 %plots.plotOpinions(pharmacydata, gpdata, func);
 
 %% Opinions about increased uptake and whether scheme is good idea
-plots.plotAwareness(pharmacydata, gpdata, func)
+%plots.plotAwareness(pharmacydata, gpdata, func)
+
+%% BRANDS
+plots.plotBrands(pharmacydata, gpdata, func)
 
 %% GP questions about vaccine practices
-plots.plotGPservice(gpdata, func)
+%plots.plotGPservice(gpdata, func)
 end
