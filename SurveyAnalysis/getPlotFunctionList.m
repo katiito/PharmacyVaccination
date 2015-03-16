@@ -665,7 +665,7 @@ function plotCosts(costdata)
 close all
         fig = figure;
         titlesize = 16;
-        labelsize = 14;
+        labelsize = 16;
         legendsize = 14;
         
         plotwidth = 0.25;
@@ -679,34 +679,94 @@ close all
         ylimits = [0 1];
         set(gcf,'position',...
           [100, 100, 1200, 500]);
+        %% cost data histograms
+        [hist_admin, mdpts_admin] = hist(costdata.PHARMACY_admincosts_perdose);
+        [hist_vacc, mdpts_vacc] = hist(costdata.PHARMACY_vaccinecosts_perdose);
+        array_admin = hist_admin / sum(hist_admin);
+        array_vacc = hist_vacc / sum(hist_vacc);
       
+        
+        %% times use histograms
+        [buy, md_buy] = hist(costdata.timeuse_durationBuying);
+        [reimburse, md_reimburse] = hist(costdata.timeuse_durationReimbursement);
+        [patient, md_patient] = hist(costdata.timeuse_durationAdminister_perdose);
+        [input, md_input] = hist(costdata.timeuse_durationInputting_perdose);
+        array_buy = buy / sum(buy);
+        array_reimburse = reimburse / sum(reimburse);
+        array_patient = patient / sum(patient);
+        array_input = input / sum(input);
+        
+        
         % ADMIN COSTS
         subplot(1,2,1)
             hold on
-            hist(costdata.PHARMACY_admincosts_perdose)
+            bar(mdpts_admin, array_admin, 'EdgeColor', 'none')
             ylims = get(gca, 'YLim');
-            plot([costdata.NHS_reimbursementadmincosts_perdose costdata.NHS_reimbursementadmincosts_perdose], [0 ylims(2)],...
-                        '--r', 'LineWidth', 1.2)
             plot([mean(costdata.PHARMACY_admincosts_perdose) mean(costdata.PHARMACY_admincosts_perdose)], [0 ylims(2)],...
-                        '-k', 'LineWidth', 1.2)
+                        '--k', 'LineWidth', 1.8)
             plot([median(costdata.PHARMACY_admincosts_perdose) median(costdata.PHARMACY_admincosts_perdose)], [0 ylims(2)],...
-                        '-k', 'LineWidth', 1.2)
-            title('Administration costs (Pharmacy)', 'FontSize', titlesize)
-            h = findobj(gca,'Type','patch');
-            h.EdgeColor = 'w';
+                        ':k', 'LineWidth', 1.8)
+            plot([costdata.NHS_reimbursementadmincosts_perdose costdata.NHS_reimbursementadmincosts_perdose], [0 ylims(2)],...
+                        '--r', 'LineWidth', 1.8)
+            title('a) Pharmacy-related flu vaccine administration costs per dose', 'FontSize', titlesize)
+            xlabel('Cost, £', 'FontSize', labelsize)
+            ylabel('Fraction of pharmacies', 'FontSize', labelsize)
+            set(gca, 'FontSize', labelsize)
+%             h = findobj(gca,'Type','patch');
+%             h.EdgeColor = 'w';
+            leg = legend('Distribution of costs for pharmacy','Mean cost to each pharmacy: £12.79','Median costs to each pharmacy: £11.62','NHS Reimbursement amount to pharmacy for administration: £7.51');
+            set(leg, 'FontSize', labelsize)
+            legend('boxoff')
+            
         subplot(1,2,2)
             hold on
-            hist(costdata.PHARMACY_vaccinecosts_perdose)
-            plot([costdata.NHS_vaccinecosts_perdose costdata.NHS_vaccinecosts_perdose], [0 ylims(2)],...
-                        '--r', 'LineWidth', 1.2)
+            bar(mdpts_vacc, array_vacc, 'EdgeColor', 'none')
             plot([mean(costdata.PHARMACY_vaccinecosts_perdose) mean(costdata.PHARMACY_vaccinecosts_perdose)], [0 ylims(2)],...
-                        '-k', 'LineWidth', 1.2)
+                        '--k', 'LineWidth', 1.8)
             plot([median(costdata.PHARMACY_vaccinecosts_perdose) median(costdata.PHARMACY_vaccinecosts_perdose)], [0 ylims(2)],...
-                        '-k', 'LineWidth', 1.2)
-            title('Vaccine purchase prices (Pharmacy)', 'FontSize', titlesize)
-            h = findobj(gca,'Type','patch');
-            h.EdgeColor = 'w';
+                        ':k', 'LineWidth', 1.8)
+            plot([costdata.NHS_vaccinecosts_perdose costdata.NHS_vaccinecosts_perdose], [0 ylims(2)],...
+                        '--r', 'LineWidth', 1.8)
+            title('b) Pharmacy-related flu vaccine purchase price per dose', 'FontSize', titlesize)
+            xlabel('Price, £', 'FontSize', labelsize)
             
+            set(gca, 'FontSize', labelsize, 'YTickLabel', {})
+%             h = findobj(gca,'Type','patch');
+%             h.EdgeColor = 'w';
+            leg = legend('Distribution of list prices for pharmacy','Mean price for each pharmacy: £7.37','Median price for each pharmacy: £7.55','NHS Reimbursement amount to pharmacy for purchase: £7.08');
+            set(leg, 'FontSize', labelsize)
+            legend('boxoff')
+          
+        fig = figure;
+        
+        subplot(2,2,1)
+            bar(md_buy, array_buy)
+            title('a) Time purchasing vaccine stock per season', 'FontSize', titlesize)
+            set(gca, 'FontSize', labelsize)
+            ylabel('Fraction pharmacies', 'FontSize', labelsize)
+            xlabel('Time (minutes)', 'FontSize', labelsize)
+            ylim([0 0.9])
+        subplot(2,2,2)
+             bar(md_reimburse, array_reimburse)
+            title('b) Time completing reimbursement paperwork per season', 'FontSize', titlesize)
+            set(gca, 'FontSize', labelsize)
+             set(gca, 'FontSize', labelsize, 'YTickLabel', {})
+             xlabel('Time (minutes)', 'FontSize', labelsize)
+            ylim([0 0.9])
+        subplot(2,2,3)
+             bar(md_patient, array_patient)
+                title('c) Time with patient per dose', 'FontSize', titlesize)
+                set(gca, 'FontSize', labelsize)
+                ylabel('Fraction pharmacies', 'FontSize', labelsize)
+                xlabel('Time (minutes)', 'FontSize', labelsize)
+                ylim([0 0.9])
+        subplot(2,2,4)
+             bar(md_input, array_input)
+                title('d) Time completing GP paperwork per dose', 'FontSize', titlesize)
+                set(gca, 'FontSize', labelsize, 'YTickLabel', {})
+                xlabel('Time (minutes)', 'FontSize', labelsize)
+                ylim([0 0.9])
+                
             output_mean_pharmacy_admin = sprintf('Mean Pharmacy Admin Costs: %f', mean(costdata.PHARMACY_admincosts_perdose));
             output_median_pharmacy_admin = sprintf('Median Pharmacy Admin Costs: %f', median(costdata.PHARMACY_admincosts_perdose));
             output_mean_pharmacy_vaccine = sprintf('Mean Pharmacy Vaccine Costs: %f', mean(costdata.PHARMACY_vaccinecosts_perdose));

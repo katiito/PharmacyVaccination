@@ -11,7 +11,7 @@ pharmacydata = data.ReadInData('pharmacy');
 gpdata = data.ReadInData('gp');
 
 %% Cost Data
-pharmacycosts = cost.CalculateAdminCost(pharmacydata, func);
+pharmacycosts = cost.CalculateAdminCost(pharmacydata, gpdata, func);
 
 %% Opinions about scheme
 %plots.plotOpinions(pharmacydata, gpdata, func);

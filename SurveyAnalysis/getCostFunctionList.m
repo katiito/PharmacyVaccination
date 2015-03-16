@@ -7,7 +7,7 @@ function cost = getCostFunctionList()
 end
 
 
-function cost = CalculateAdminCost(data, func)
+function cost = CalculateAdminCost(data, data_gp, func)
     
 
     % fridge, gauze/tape, waste facilities, waste removal, hire asst (per hour), hire dispenser (per hour),
@@ -25,21 +25,21 @@ function cost = CalculateAdminCost(data, func)
     training_promotion_annual_cost = 450746;
     nhsadmincost_perdose = 7.51;
     nhsvaccinecost_perdose = 5.90*1.2;
-    brands_list_prices = 1.2*[5.90 %InfluvacAbbott
-                          5.90 %ImuvacAbbott
-                          10.90 %FluarixTetraAstraZeneca
-                          5.90 %FluarixAstraZeneca
-                          5.90 %ImuvacMASTA
-                          6.90 %EnziraMASTA
-                          5.90 %InactivatedInfluenzavaccineBPMASTA
-                          8.90 %InfluvacMASTA
-                          7.90 %CSLInactivatedInfluenzavaccineMASTA
-                          5.90 %AgrippalNovartis
-                          4.90 %OptafluNovartis 
-                          5.90 %CSLInactivatedInfluenzavaccinePfizer
-                          7.90 %EnziraPfizer
-                          8.90 %InactivatedInfluenzavaccineBPSanofiPasteurMSD
-                          9.90]; %IntanzaSanofiPasteurMSD
+    brands_list_prices = 1.2*[5.22 %Influvac (Abbott) XXXX
+                          6.59 %Imuvac (Abbott) XXXX
+                          9.94 %FluarixTetra (AstraZeneca) XXX
+                          5.39 %Fluarix (AstraZeneca) XXX
+                          6.59 %ImuvacMASTA XX (set same as Imuvac Abbott)
+                          5.25 %Enzira (MASTA) XX (set same as Enzira Pfizer)
+                          6.29 %InactivatedInfluenzavaccineBPMASTA XX (set same as SPMSD)
+                          5.22 %InfluvacMASTA XX (set same as influvacc Abbott)
+                          5.22 %CSLInactivatedInfluenzavaccineMASTA (set same as Enzira)
+                          6.59 %AgrippalNovartis XXX
+                          6.59 %OptafluNovartis XXX
+                          5.25 %CSLInactivatedInfluenzavaccinePfizer (marketed as Enzira) XXX
+                          5.25 %Enzira (Pfizer) XXX
+                          6.29 %InactivatedInfluenzavaccineBPSanofiPasteurMSD XXX
+                          9.05]; %IntanzaSanofiPasteurMSD XXX
     
     %initialization
     total_number_responses = size(data.ID,1);
@@ -111,7 +111,7 @@ function cost = CalculateAdminCost(data, func)
                         for fld = allfields
                             fld = fld{1};
                             index = index + 1;
-                            individual_admincosts_pharmrecurrent{4} = individual_admincosts_pharmrecurrent{4} + (personnelAdminister.(fld) .* salary_per_min(index) .* durationAdminister_perdose * number_of_doses_per_pharmacist) ;
+                            individual_admincosts_pharmrecurrent{4} = individual_admincosts_pharmrecurrent{4} + (personnelAdminister.(fld) .* salary_per_min(index+2) .* durationAdminister_perdose * number_of_doses_per_pharmacist) ;
                         end
 
 
@@ -146,12 +146,35 @@ function cost = CalculateAdminCost(data, func)
     countbrandsarray = struct2array(countbrands)';
     cost_distribution = repmat(brands_list_prices, 1, size(countbrandsarray,2)) .* countbrandsarray;
     
+    %% VACCINE PRICE (GP)
+    vaccinebrands_gp = fields(data_gp.Brand);
+    vaccinebrands_gp = vaccinebrands_gp(1:(end-2)); %delete 'don't know and i'd rather not say'
+    
+    
     for i=1:size(cost_distribution,2)
-        perpharmacycosts = [];
+        %perpharmacycosts = [];
         indices = find(cost_distribution(:,i));
         averagecost_perdose(i) = mean(cost_distribution(indices,i));
     end
     
+    allbrands = fields(data_gp.Brand)';
+    allbrands = allbrands(1:(end-2));
+        
+        for brand = allbrands
+            brand = brand{1}; 
+            countgp.(brand) = func.sumUp(data_gp.Brand.(brand)); 
+        end
+        
+        brandsarray_gp = struct2array(countgp);
+        totals_gp = sum(brandsarray_gp);
+        h_gp = brandsarray_gp / totals_gp;
+
+        
+    GP_vaccinecosts_perdose   =   sum(h_gp' .* brands_list_prices);
+    out1 = sprintf('Purchase Reimbursement by NHS if administered via GP: £%.2f (won''t change from year to year)', GP_vaccinecosts_perdose);
+    out2 = sprintf('Total Purchase Reimbursement by NHS if administered via GP (2013): £%.f (depends on total vaccs given by year)', GP_vaccinecosts_perdose*1059538);
+    disp(out1)
+    disp(out2)
     PHARMACY_vaccinecosts_perdose = averagecost_perdose';
     
      
@@ -196,6 +219,11 @@ function cost = CalculateAdminCost(data, func)
     cost.pharmacyrecurrent_pers_admincost_perdose = pharmacyrecurrent_pers_admincost_perdose(~isnan(pharmacyrecurrent_pers_admincost_perdose));
     cost.pharmacyinvestment_admincost_perdose = pharmacyinvestment_admincost_perdose(~isnan(pharmacyinvestment_admincost_perdose));
     
+    
+    cost.timeuse_durationBuying = durationBuying(~isnan(durationBuying));
+    cost.timeuse_durationReimbursement = durationReimbursement(~isnan(durationReimbursement));
+    cost.timeuse_durationAdminister_perdose = durationAdminister_perdose(~isnan(durationAdminister_perdose));
+    cost.timeuse_durationInputting_perdose = durationInputting_perdose(~isnan(durationInputting_perdose));
 %     cost.totalrecurrent_nonpers_costperdose = totalrecurrent_nonpers_costperdose(~isnan(totalrecurrent_nonpers_costperdose));
 %     cost.totalrecurrent_pers_costperdose = totalrecurrent_pers_costperdose(~isnan(totalrecurrent_pers_costperdose));
 %     cost.totalinvestment_costperdose = totalinvestment_costperdose(~isnan(totalinvestment_costperdose));
