@@ -13,24 +13,47 @@ function cost = CalculateAdminCost(data, func)
     % fridge, gauze/tape, waste facilities, waste removal, hire asst (per hour), hire dispenser (per hour),
     % hire pharmacist (per hour)
     costs = [570, 1.75, 0, 0, 0, 0, 0];
-    % asst, disp/technician, pharmacist, pre-reg, (2013 salaries)
-    annual_salary = [6.31*1589, 6.93*1589, 38610*1.19, 18440];
+    % asst, disp/technician, pre-reg, pharmacist  (2013 annual salaries (pre-tax))
+    annual_salary = [6.31*1589, 6.93*1589, 18440, 38610*1.19];
     salary_per_min = annual_salary / (1589*60);
     number_of_doses_per_pharmacist = 95;
     number_doses = 68220;
-    number_of_pharmacies = number_doses / number_of_doses_per_pharmacist;
+    %number_of_pharmacies = number_doses / number_of_doses_per_pharmacist;
     yearsofdepreciation = 10;
     sonar_investment_cost = 36000;
     sonar_annual_cost = 12500;
     training_promotion_annual_cost = 450746;
-
+    nhsadmincost_perdose = 7.51;
+    nhsvaccinecost_perdose = 5.90*1.2;
+    brands_list_prices = 1.2*[5.90 %InfluvacAbbott
+                          5.90 %ImuvacAbbott
+                          10.90 %FluarixTetraAstraZeneca
+                          5.90 %FluarixAstraZeneca
+                          5.90 %ImuvacMASTA
+                          6.90 %EnziraMASTA
+                          5.90 %InactivatedInfluenzavaccineBPMASTA
+                          8.90 %InfluvacMASTA
+                          7.90 %CSLInactivatedInfluenzavaccineMASTA
+                          5.90 %AgrippalNovartis
+                          4.90 %OptafluNovartis 
+                          5.90 %CSLInactivatedInfluenzavaccinePfizer
+                          7.90 %EnziraPfizer
+                          8.90 %InactivatedInfluenzavaccineBPSanofiPasteurMSD
+                          9.90]; %IntanzaSanofiPasteurMSD
+    
     %initialization
     total_number_responses = size(data.ID,1);
-    for i = 1:7
-        individual_costs_recurrent{i} = zeros(total_number_responses, 1);  
+    for i = 1:5
+        individual_admincosts_pharmrecurrent{i} = zeros(total_number_responses, 1);  
     end
-    for i = 1:2
-        individual_costs_investment{i} = zeros(total_number_responses, 1);
+    for i = 1:1
+        individual_admincosts_pharminvestment{i} = zeros(total_number_responses, 1);
+    end
+    for i=1:3
+        admincosts_NHSrecurrent_perseason{i} = 0;
+    end
+    for i=1:3
+        admincosts_NHSinvestment_perseason{i} = 0;
     end
     
     %% REIMBURSEMENT COSTS
@@ -45,11 +68,11 @@ function cost = CalculateAdminCost(data, func)
                             fld = fld{1};
                             index = index + 1;
                             if strcmp(fld, 'Wastesharpsremovalservices') 
-                                individual_costs_recurrent{1} = individual_costs_recurrent{1} + (costs(index) * newPurchases.(fld));
+                                individual_admincosts_pharmrecurrent{1} = individual_admincosts_pharmrecurrent{1} + (costs(index) * newPurchases.(fld));
                             elseif strcmp(fld, 'GauzeTapePlasters')
-                                individual_costs_recurrent{1} = individual_costs_recurrent{1} + (costs(index) * newPurchases.(fld));
+                                individual_admincosts_pharmrecurrent{1} = individual_admincosts_pharmrecurrent{1} + (costs(index) * newPurchases.(fld));
                             else
-                                individual_costs_investment{1} = individual_costs_investment{1} + (costs(index) * newPurchases.(fld) / yearsofdepreciation);
+                                individual_admincosts_pharminvestment{1} = individual_admincosts_pharminvestment{1} + (costs(index) * newPurchases.(fld) / yearsofdepreciation);
                             end
                         end
 
@@ -62,7 +85,7 @@ function cost = CalculateAdminCost(data, func)
                         for fld = allfields
                             fld = fld{1};
                             index = index + 1;
-                            individual_costs_recurrent{2} = individual_costs_recurrent{2} + (personnelBuying.(fld) .* salary_per_min(index) .* durationBuying ) ;
+                            individual_admincosts_pharmrecurrent{2} = individual_admincosts_pharmrecurrent{2} + (personnelBuying.(fld) .* salary_per_min(index) .* durationBuying ) ;
                         end
 
 
@@ -75,7 +98,7 @@ function cost = CalculateAdminCost(data, func)
                         for fld = allfields
                             fld = fld{1};
                             index = index + 1;
-                            individual_costs_recurrent{3} = individual_costs_recurrent{3} + (personnelReimbursement.(fld) .* salary_per_min(index) .* durationReimbursement ) ;
+                            individual_admincosts_pharmrecurrent{3} = individual_admincosts_pharmrecurrent{3} + (personnelReimbursement.(fld) .* salary_per_min(index) .* durationReimbursement ) ;
                         end
 
 
@@ -88,7 +111,7 @@ function cost = CalculateAdminCost(data, func)
                         for fld = allfields
                             fld = fld{1};
                             index = index + 1;
-                            individual_costs_recurrent{4} = individual_costs_recurrent{4} + (personnelAdminister.(fld) .* salary_per_min(index) .* durationAdminister_perdose * number_of_doses_per_pharmacist) ;
+                            individual_admincosts_pharmrecurrent{4} = individual_admincosts_pharmrecurrent{4} + (personnelAdminister.(fld) .* salary_per_min(index) .* durationAdminister_perdose * number_of_doses_per_pharmacist) ;
                         end
 
 
@@ -101,42 +124,83 @@ function cost = CalculateAdminCost(data, func)
                         for fld = allfields
                             fld = fld{1};
                             index = index + 1;
-                            individual_costs_recurrent{5} = individual_costs_recurrent{5} + (personnelInputting.(fld) .* salary_per_min(index) .* durationInputting_perdose * number_of_doses_per_pharmacist) ;
+                            individual_admincosts_pharmrecurrent{5} = individual_admincosts_pharmrecurrent{5} + (personnelInputting.(fld) .* salary_per_min(index) .* durationInputting_perdose * number_of_doses_per_pharmacist) ;
                         end
-    %% SONAR DATA
-    sonar_recurrentcosts_perpharmacy = repmat(sonar_annual_cost / number_of_pharmacies, total_number_responses, 1);
-    sonar_investcosts_perpharmacy = repmat(sonar_investment_cost / (number_of_pharmacies * 0.5*yearsofdepreciation), total_number_responses, 1);
-    individual_costs_recurrent{6} = sonar_recurrentcosts_perpharmacy;
-    individual_costs_investment{2} = sonar_investcosts_perpharmacy;
+    %% SONAR DATA (NHS)
+    admincosts_NHSrecurrent_perseason{1} = sonar_annual_cost;
+    admincosts_NHSinvestment_perseason{1} = sonar_investment_cost / (0.5*yearsofdepreciation);
     
-    %% TRAINING/ PROMOTION
-    training_promotion_recurrentcosts_perpharmacy = repmat(training_promotion_annual_cost / number_of_pharmacies, total_number_responses, 1); 
-    individual_costs_recurrent{7} = training_promotion_recurrentcosts_perpharmacy;
+    %% TRAINING/ PROMOTION (NHS)
+    admincosts_NHSrecurrent_perseason{2} = training_promotion_annual_cost;
     
-    %% VACCINE PRICE
-    price_perpharmacy = function of costs of vaccines and proportion choosing vaccine
+    %% ADMINISTRATION REIMBURSEMENT (NHS)
+    admincosts_NHSrecurrent_perseason{3} = number_doses * nhsadmincost_perdose;
     
-    %% split up costs per dose and combine
-    perdose_f = @(arr) arr/number_of_doses_per_pharmacist;
-    recurrent_nonpers_cost_perdose = cellfun(perdose_f, individual_costs_recurrent([1,(end-1):end]), 'UniformOutput', false); % 
-    recurrent_pers_cost_perdose =  cellfun(perdose_f, individual_costs_recurrent(2:(end-2)), 'UniformOutput', false); 
-    investmentcost_perdose = cellfun(perdose_f, individual_costs_investment, 'UniformOutput', false);
-    vaccinecost_perdose = cellfun(perdose_f, price_perpharmacy, 'UniformOutput', false);
+    %% VACCINE PRICE (NHS) per dose
+    vaccinecosts_NHSrecurrent_perdose =  nhsvaccinecost_perdose;
     
-    totalrecurrent_nonpers_costperdose = sum(cell2mat(recurrent_nonpers_cost_perdose), 2);
-    totalrecurrent_pers_costperdose = sum(cell2mat(recurrent_pers_cost_perdose), 2);
-    totalinvestment_costperdose = sum(cell2mat(investmentcost_perdose), 2);
-    total_costperdose = totalrecurrent_nonpers_costperdose + totalrecurrent_pers_costperdose + totalinvestment_costperdose + ; % cost to NHS
+    %% VACCINE PRICE (PHARMACY)
+    vaccinebrands = fields(data.Brand);
+    vaccinebrands = vaccinebrands(1:(end-2)); %delete 'don't know and i'd rather not say'
+    countbrands = func.convertToLogical(data.Brand, vaccinebrands);
+    countbrandsarray = struct2array(countbrands)';
+    cost_distribution = repmat(brands_list_prices, 1, size(countbrandsarray,2)) .* countbrandsarray;
     
-    %% reimbursement costs for pharmacies: fridge {investment -- 1}, gauze {recurrent (np) -- 1}, personnel {recurrent (p) -- all}, 
-    total_costtopharmacy_perdose = investmentcost_perdose{1} + recurrent_nonpers_cost_perdose{1} + totalrecurrent_pers_costperdose;
+    for i=1:size(cost_distribution,2)
+        perpharmacycosts = [];
+        indices = find(cost_distribution(:,i));
+        averagecost_perdose(i) = mean(cost_distribution(indices,i));
+    end
+    
+    PHARMACY_vaccinecosts_perdose = averagecost_perdose';
+    
+     
+    %% CALCULATE ADMIN COSTS per dose (PHARMACY)
+    pharm2dose_f = @(arr) arr/number_of_doses_per_pharmacist;
+    pharmacyrecurrent_nonpers_admincost_perdose = sum(cell2mat(cellfun(pharm2dose_f, individual_admincosts_pharmrecurrent(1), 'UniformOutput', false)),2); % 
+    pharmacyrecurrent_pers_admincost_perdose =  sum(cell2mat(cellfun(pharm2dose_f, individual_admincosts_pharmrecurrent(2:end), 'UniformOutput', false)),2); 
+    pharmacyinvestment_admincost_perdose = sum(cell2mat(cellfun(pharm2dose_f, individual_admincosts_pharminvestment, 'UniformOutput', false)),2);
+    %pharmacyrecurrent_vaccinecost_perdose = ;
+    
+    PHARMACY_admincosts_perdose = pharmacyrecurrent_nonpers_admincost_perdose + ...
+                                  pharmacyrecurrent_pers_admincost_perdose + ...
+                                  pharmacyinvestment_admincost_perdose;
+    
+    %% CALCULATE ADMIN COSTS per dose (NHS)
+    season2dose_f = @(arr) arr/number_doses;
+    nhsrecurrent_admincost_perdose = sum(cellfun(season2dose_f,  admincosts_NHSrecurrent_perseason));
+    nhsinvestment_admincost_perdose = sum(cellfun(season2dose_f, admincosts_NHSinvestment_perseason));
+    
+    NHS_admincosts_perdose = nhsrecurrent_admincost_perdose + ...
+                                    nhsinvestment_admincost_perdose;
+
+    
+   
+%     total_costtonhsperdose = totalrecurrent_nonpers_costperdose + totalrecurrent_pers_costperdose...
+%                                 + totalinvestment_costperdose + nhsadministration_perdose; % cost to NHS
+
     
     
-    cost.totalrecurrent_nonpers_costperdose = totalrecurrent_nonpers_costperdose;
-    cost.totalrecurrent_pers_costperdose = totalrecurrent_pers_costperdose;
-    cost.totalinvestment_costperdose = totalinvestment_costperdose;
-    cost.totalreimbursement_costperdose = totalreimbursement_costperdose;
-    cost.total_costperdose = total_costperdose;
+    %% SAVE COSTS: Admin (pharmacy & NHS) -- Vaccine (pharmacy & NHS)
+    cost.PHARMACY_admincosts_perdose = PHARMACY_admincosts_perdose(~isnan(PHARMACY_admincosts_perdose));
+    cost.PHARMACY_vaccinecosts_perdose = PHARMACY_vaccinecosts_perdose(~isnan(PHARMACY_vaccinecosts_perdose));
+    cost.NHS_admincosts_perdose = NHS_admincosts_perdose(~isnan(NHS_admincosts_perdose));
+    cost.NHS_vaccinecosts_perdose = vaccinecosts_NHSrecurrent_perdose(~isnan(vaccinecosts_NHSrecurrent_perdose));
+    
+    cost.NHS_reimbursementadmincosts_perdose = nhsadmincost_perdose(~isnan(nhsadmincost_perdose));
+    
+    %% subcosts
+    cost.nhsrecurrent_admincost_perdose = nhsrecurrent_admincost_perdose(~isnan(nhsrecurrent_admincost_perdose));
+    cost.nhsinvestment_admincost_perdose = nhsinvestment_admincost_perdose(~isnan(nhsinvestment_admincost_perdose));
+    cost.pharmacyrecurrent_nonpers_admincost_perdose = pharmacyrecurrent_nonpers_admincost_perdose(~isnan(pharmacyrecurrent_nonpers_admincost_perdose));
+    cost.pharmacyrecurrent_pers_admincost_perdose = pharmacyrecurrent_pers_admincost_perdose(~isnan(pharmacyrecurrent_pers_admincost_perdose));
+    cost.pharmacyinvestment_admincost_perdose = pharmacyinvestment_admincost_perdose(~isnan(pharmacyinvestment_admincost_perdose));
+    
+%     cost.totalrecurrent_nonpers_costperdose = totalrecurrent_nonpers_costperdose(~isnan(totalrecurrent_nonpers_costperdose));
+%     cost.totalrecurrent_pers_costperdose = totalrecurrent_pers_costperdose(~isnan(totalrecurrent_pers_costperdose));
+%     cost.totalinvestment_costperdose = totalinvestment_costperdose(~isnan(totalinvestment_costperdose));
+%     cost.totalcosttopharmacy_perdose = totalcosttopharmacy_perdose(~isnan(totalcosttopharmacy_perdose));
+%     cost.totalcosttonhs_perdose = total_costtonhsperdose(~isnan(total_costtonhsperdose));
     
 %     combinedCosts_recurrentPerSeason_perpharmacy = sum(cell2mat(individual_costs_recurrent), 2);
 %     

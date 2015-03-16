@@ -5,6 +5,8 @@ function f = getStringFunctionList()
     f.zerotonan = @zerotonan;
     f.sumUp = @sumUp;
     f.sumUpVals = @sumUpVals;
+    f.convertToLogical = @convertToLogical;
+    
 end
 
 
@@ -39,6 +41,23 @@ function count = sumUpVals(cell, ref)
     f = @(str) strcmpi(str, ref);
     count = sum(cellfun(f, cell));
 
+end
+
+function count = convertToLogical(data, fields)
+
+%    allfields = fields(data);
+%    if strcmp(removelastentry, 'true')
+%     allfields(end) = [];
+%    else
+%    end
+   notempty =  @(str) ~strcmpi(str, '');
+   
+    for fld = fields'
+         fld = fld{1};
+        count.(fld) = cellfun(notempty, data.(fld));
+        
+    end
+    
 end
 
 function a = zerotonan(a)

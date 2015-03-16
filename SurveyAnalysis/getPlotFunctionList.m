@@ -678,22 +678,49 @@ close all
         %xlimits = [0 32];
         ylimits = [0 1];
         set(gcf,'position',...
-          [100, 100, 1800, 1200]);
+          [100, 100, 1200, 500]);
+      
+        % ADMIN COSTS
+        subplot(1,2,1)
+            hold on
+            hist(costdata.PHARMACY_admincosts_perdose)
+            ylims = get(gca, 'YLim');
+            plot([costdata.NHS_reimbursementadmincosts_perdose costdata.NHS_reimbursementadmincosts_perdose], [0 ylims(2)],...
+                        '--r', 'LineWidth', 1.2)
+            plot([mean(costdata.PHARMACY_admincosts_perdose) mean(costdata.PHARMACY_admincosts_perdose)], [0 ylims(2)],...
+                        '-k', 'LineWidth', 1.2)
+            plot([median(costdata.PHARMACY_admincosts_perdose) median(costdata.PHARMACY_admincosts_perdose)], [0 ylims(2)],...
+                        '-k', 'LineWidth', 1.2)
+            title('Administration costs (Pharmacy)', 'FontSize', titlesize)
+            h = findobj(gca,'Type','patch');
+            h.EdgeColor = 'w';
+        subplot(1,2,2)
+            hold on
+            hist(costdata.PHARMACY_vaccinecosts_perdose)
+            plot([costdata.NHS_vaccinecosts_perdose costdata.NHS_vaccinecosts_perdose], [0 ylims(2)],...
+                        '--r', 'LineWidth', 1.2)
+            plot([mean(costdata.PHARMACY_vaccinecosts_perdose) mean(costdata.PHARMACY_vaccinecosts_perdose)], [0 ylims(2)],...
+                        '-k', 'LineWidth', 1.2)
+            plot([median(costdata.PHARMACY_vaccinecosts_perdose) median(costdata.PHARMACY_vaccinecosts_perdose)], [0 ylims(2)],...
+                        '-k', 'LineWidth', 1.2)
+            title('Vaccine purchase prices (Pharmacy)', 'FontSize', titlesize)
+            h = findobj(gca,'Type','patch');
+            h.EdgeColor = 'w';
     %top row
-        ax(1) = axes('Position',  [leftmargin,                           bottommargin + rowspace + plotheight, plotwidth, plotheight]);
-        ax(2) = axes('Position',  [leftmargin+plotwidth+columnspace,     bottommargin + rowspace + plotheight, plotwidth, plotheight]);
-        ax(3) = axes('Position',  [leftmargin+2*plotwidth+2*columnspace,   bottommargin + rowspace + plotheight, plotwidth, plotheight]);
+        %ax(1) = axes('Position',  [leftmargin,                           bottommargin + rowspace + plotheight, plotwidth, plotheight]);
+        %ax(2) = axes('Position',  [leftmargin+plotwidth+columnspace,     bottommargin + rowspace + plotheight, plotwidth, plotheight]);
+        %ax(3) = axes('Position',  [leftmargin+2*plotwidth+2*columnspace,   bottommargin + rowspace + plotheight, plotwidth, plotheight]);
         % bottom row
-        ax(4) = axes('Position',  [leftmargin,                               bottommargin, 1.5*plotwidth, plotheight]);
-        ax(5) = axes('Position',  [leftmargin+1.5*plotwidth+2*columnspace,         bottommargin, 1.5*plotwidth, plotheight]);
+        %ax(2) = axes('Position',  [leftmargin,                               bottommargin, 1.5*plotwidth, plotheight]);
+        %%ax(5) = axes('Position',  [leftmargin+1.5*plotwidth+2*columnspace,         bottommargin, 1.5*plotwidth, plotheight]);
         
-        allfields = fields(costdata);
-        index = 0;
-        for fld = allfields'
-            fld = fld{1};
-            index = index+1;
-            axes(ax(index))
-            hist(costdata.(fld), 10)
-        end
+%         allfields = fields(costdata);
+%         index = 0;
+%         for fld = allfields'
+%             fld = fld{1};
+%             index = index+1;
+%             axes(ax(index))
+%             hist(costdata.(fld), 10)
+%         end
 
 end
