@@ -706,6 +706,18 @@ close all
             title('Vaccine purchase prices (Pharmacy)', 'FontSize', titlesize)
             h = findobj(gca,'Type','patch');
             h.EdgeColor = 'w';
+            
+            output_mean_pharmacy_admin = sprintf('Mean Pharmacy Admin Costs: %f', mean(costdata.PHARMACY_admincosts_perdose));
+            output_median_pharmacy_admin = sprintf('Median Pharmacy Admin Costs: %f', median(costdata.PHARMACY_admincosts_perdose));
+            output_mean_pharmacy_vaccine = sprintf('Mean Pharmacy Vaccine Costs: %f', mean(costdata.PHARMACY_vaccinecosts_perdose));
+            output_median_pharmacy_vaccine = sprintf('Median Pharmacy Vaccine Costs: %f', median(costdata.PHARMACY_vaccinecosts_perdose));
+            
+            disp(output_mean_pharmacy_admin)
+            disp(output_median_pharmacy_admin)
+            disp(output_mean_pharmacy_vaccine)
+            disp(output_median_pharmacy_vaccine)
+            
+            
     %top row
         %ax(1) = axes('Position',  [leftmargin,                           bottommargin + rowspace + plotheight, plotwidth, plotheight]);
         %ax(2) = axes('Position',  [leftmargin+plotwidth+columnspace,     bottommargin + rowspace + plotheight, plotwidth, plotheight]);
