@@ -11,7 +11,7 @@ pharmacydata = data.ReadInData('pharmacy');
 gpdata = data.ReadInData('gp');
 
 %% Cost Data
-pharmacycosts = cost.CalculateAdminCost(pharmacydata, gpdata, func);
+%pharmacycosts = cost.CalculateAdminCost(pharmacydata, gpdata, func, '2014_2015');
 
 %% Opinions about scheme
 %plots.plotOpinions(pharmacydata, gpdata, func);
@@ -23,8 +23,8 @@ pharmacycosts = cost.CalculateAdminCost(pharmacydata, gpdata, func);
 %plots.plotBrands(pharmacydata, gpdata, func)
 
 %% GP questions about vaccine practices
-%plots.plotGPservice(gpdata, func)
+plots.plotGPservice(gpdata, func)
 
 %% COSTS
-plots.plotCosts(pharmacycosts);
+%plots.plotCosts(pharmacycosts);
 end

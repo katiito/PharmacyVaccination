@@ -393,27 +393,36 @@ function plotBrands(pharmacydata, gpdata, f)
         
         totals_pharm = sum(brandsarray_pharm);
         totals_gp = sum(brandsarray_gp);
+        brands_regroup_pharm = [brandsarray_pharm(1)+brandsarray_pharm(8), ...
+                            brandsarray_pharm(2)+brandsarray_pharm(5),...
+                            brandsarray_pharm(3), brandsarray_pharm(4),...
+                            brandsarray_pharm(6)+brandsarray_pharm(9)+brandsarray_pharm(12)+brandsarray_pharm(13),...
+                            brandsarray_pharm(7)+brandsarray_pharm(14), ...
+                            brandsarray_pharm(10), brandsarray_pharm(11), brandsarray_pharm(15),...
+                            brandsarray_pharm(16), brandsarray_pharm(17)];
+       
+        brands_regroup_gp = [brandsarray_gp(1)+brandsarray_gp(8), ...
+                            brandsarray_gp(2)+brandsarray_gp(5),...
+                            brandsarray_gp(3), brandsarray_gp(4),...
+                            brandsarray_gp(6)+brandsarray_gp(9)+brandsarray_gp(12)+brandsarray_gp(13),...
+                            brandsarray_gp(7)+brandsarray_gp(14), ...
+                            brandsarray_gp(10), brandsarray_gp(11), brandsarray_gp(15),...
+                            brandsarray_gp(16), brandsarray_gp(17)];
         
-         h_pharm = brandsarray_pharm / totals_pharm;
-         h_gp = brandsarray_gp / totals_gp;
+         h_pharm = brands_regroup_pharm / totals_pharm;
+         h_gp = brands_regroup_gp / totals_gp;
         
-        names = {'Influvac (Abbott)'
-                'Imuvac (Abbott)'
-                'FluarixTetra (AstraZeneca)'
-                'Fluarix (AstraZeneca)'
-                'Imuvac (MASTA)'
-                'Enzira (MASTA)'
-                'Inactivated Vaccine BP (MASTA)'
-                'Influvac (MASTA)'
-                'CSL Inactivated Vaccine (MASTA)'
-                'Agrippal (Novartis)'
-                'Optaflu (Novartis)'
-                'CSL Inactivated Vaccine (Pfizer)'
-                'Enzira (Pfizer)'
-                'Inactivated Vaccine BP (SPMSD)'
-                'Intanza (SPMSD)'
-                'Unsure'
-                'I don''t want to say'};
+        names = {'Influvac' %(1)  1
+                'Imuvac' %(2)  2
+                'FluarixTetra' %(3)  3
+                'Fluarix' %(4)  4
+                'Enzira / CSL Inactivated Vaccine' %(5)  6
+                'Inactivated Vaccine BP' %(6)  7
+                'Agrippal' %(7)  10
+                'Optaflu' %(8)  11
+                'Intanza' %(9)  15
+                'Unsure' %(10)  16
+                'I don''t want to say'};% (11)  17
         
             
         labelsize = 13;
@@ -430,7 +439,7 @@ function plotBrands(pharmacydata, gpdata, f)
         box off;
         set(gca, 'XTick', 1:size(names,1), 'FontSize', labelsize)
         set(gca, 'XTickLabel', {})
-        title('Brand used for seasonal influena administration 2014/15', 'FontSize', titlesize)
+        title('Brand used for seasonal influenza vaccine administration 2014/15', 'FontSize', titlesize)
         leg=  legend('Pharmacy delivery', 'GP delivery');
         legend('boxoff')
         set(leg, 'FontSize', titlesize)
@@ -466,8 +475,8 @@ function plotGPservice(gpdata, f)
         adminarray_sd = sqrt(adminarray.*(1-adminarray)/admin_total);
         
         admin_names = {'GP only'
-                 'Both GP and nurse'
                  'Mostly GP'
+                 'Both GP and nurse'
                  'Mostly nurse'
                  'Only nurse'};
              
@@ -594,6 +603,7 @@ function plotGPservice(gpdata, f)
                     'FontSize', labelsize)
                 box off
                 ylim(ylimits)
+                set(gca, 'XTickLabels', {})
                 x = get(h2, 'XData');
                 plot([x; x], [whenarray-1.96*whenarray_sd; whenarray+1.96*whenarray_sd], 'k-');
                 set(gca, 'XTick', 1:size(when_names,1))                
@@ -714,7 +724,7 @@ close all
             set(gca, 'FontSize', labelsize)
 %             h = findobj(gca,'Type','patch');
 %             h.EdgeColor = 'w';
-            leg = legend('Distribution of costs for pharmacy','Mean cost to each pharmacy: £12.79','Median costs to each pharmacy: £11.62','NHS Reimbursement amount to pharmacy for administration: £7.51');
+            leg = legend('Distribution of costs for pharmacy','Mean cost to each pharmacy: £12.72','Median costs to each pharmacy: £11.57','NHS Reimbursement amount to pharmacy for administration: £7.51');
             set(leg, 'FontSize', labelsize)
             legend('boxoff')
             

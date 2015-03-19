@@ -6,12 +6,12 @@ end
 
 
 
-function plotUptakebyRisk(year1data, year2data, year3data, year4data, year4pharmdata, f)
+function plotUptakebyRisk(year1data, year2data, year3data, year4data, year5data, year4pharmdata, f)
     
 
     % loop through years to 
     yearindex = 0;
-    for years = {'2010_2011', '2011_2012', '2012_2013', '2013_2014'}   
+    for years = {'2010_2011', '2011_2012', '2012_2013', '2013_2014', '2014_2015'}   
         years = years{1};
         yearindex = yearindex + 1;
         
@@ -40,6 +40,8 @@ function plotUptakebyRisk(year1data, year2data, year3data, year4data, year4pharm
             %% MOVE CCG Names to PCT Names so easily comparable
             %datafileGP.PCTName = cellfun(f.RelabelCCGasPCT, datafileGP.PCTName, 'UniformOutput', false);
             %PCTNames = unique(datafileGP.PCTName)';
+        else
+            datafileGP = year5data;
         end
         
         Fields = {'Elderly',...
@@ -54,33 +56,67 @@ function plotUptakebyRisk(year1data, year2data, year3data, year4data, year4pharm
                   'Carers'};
         
         %% GP data
-        for fld = Fields
-              fld = char(fld{1});
-              % add up the elderly
-              if strcmpi(fld, 'Elderly')
-                total_vac{yearindex}.Elderly  =  sum(f.removeNaN(datafileGP.Allpatients.aged65andover.Vaccinated));
-                total_reg{yearindex}.Elderly = sum(f.removeNaN(datafileGP.Allpatients.aged65andover.Registered));
-              % add in pregnant women
-              elseif strcmpi(fld, 'PregnantWomen')
-                  total_vac{yearindex}.PregnantWomenRiskGroup = sum(f.removeNaN(datafileGP.(fld).PregnantandINaclinicalriskgroup.Vaccinated));
-                  total_reg{yearindex}.PregnantWomenRiskGroup = sum(f.removeNaN(datafileGP.(fld).PregnantandINaclinicalriskgroup.Registered));
-                  total_vac{yearindex}.PregnantWomenNotRiskGroup = sum(f.removeNaN(datafileGP.(fld).PregnantandNOTINaclinicalriskgroup.Vaccinated));
-                  total_reg{yearindex}.PregnantWomenNotRiskGroup = sum(f.removeNaN(datafileGP.(fld).PregnantandNOTINaclinicalriskgroup.Registered));
-              % add in carers in whatever capacity
-              elseif strcmpi(fld, 'Carers')
-                   total_vac{yearindex}.Carers = sum(f.removeNaN(datafileGP.(fld).agedunder65notatriskwhofulfilthecarerdefinition.Vaccinated));
-                   total_reg{yearindex}.Carers = sum(f.removeNaN(datafileGP.(fld).agedunder65notatriskwhofulfilthecarerdefinition.Registered));
-              % add in everyone else under risk group 
-              else
-                total_vac{yearindex}.(fld)  =  sum(f.removeNaN(datafileGP.(fld).aged6monthstounder2years.Vaccinated))+...
-                                     sum(f.removeNaN(datafileGP.(fld).aged2yearstounder16years.Vaccinated))+...
-                                     sum(f.removeNaN(datafileGP.(fld).aged16tounder65.Vaccinated));
-                total_reg{yearindex}.(fld) = sum(f.removeNaN(datafileGP.(fld).aged6monthstounder2years.Registered))+...
-                                   sum(f.removeNaN(datafileGP.(fld).aged2yearstounder16years.Registered))+...
-                                   sum(f.removeNaN(datafileGP.(fld).aged16tounder65.Registered));
-              end
+        if ~strcmp(years, '2014_2015')
+            for fld = Fields
+                  fld = char(fld{1});
+                  % add up the elderly
+                  if strcmpi(fld, 'Elderly')
+                    total_vac{yearindex}.Elderly  =  sum(f.removeNaN(datafileGP.Allpatients.aged65andover.Vaccinated));
+                    total_reg{yearindex}.Elderly = sum(f.removeNaN(datafileGP.Allpatients.aged65andover.Registered));
+                  % add in pregnant women
+                  elseif strcmpi(fld, 'PregnantWomen')
+                      total_vac{yearindex}.PregnantWomenRiskGroup = sum(f.removeNaN(datafileGP.(fld).PregnantandINaclinicalriskgroup.Vaccinated));
+                      total_reg{yearindex}.PregnantWomenRiskGroup = sum(f.removeNaN(datafileGP.(fld).PregnantandINaclinicalriskgroup.Registered));
+                      total_vac{yearindex}.PregnantWomenNotRiskGroup = sum(f.removeNaN(datafileGP.(fld).PregnantandNOTINaclinicalriskgroup.Vaccinated));
+                      total_reg{yearindex}.PregnantWomenNotRiskGroup = sum(f.removeNaN(datafileGP.(fld).PregnantandNOTINaclinicalriskgroup.Registered));
+                  % add in carers in whatever capacity
+                  elseif strcmpi(fld, 'Carers')
+                       total_vac{yearindex}.Carers = sum(f.removeNaN(datafileGP.(fld).agedunder65notatriskwhofulfilthecarerdefinition.Vaccinated));
+                       total_reg{yearindex}.Carers = sum(f.removeNaN(datafileGP.(fld).agedunder65notatriskwhofulfilthecarerdefinition.Registered));
+                  % add in everyone else under risk group 
+                  else
+                    total_vac{yearindex}.(fld)  =   sum(f.removeNaN(datafileGP.(fld).aged16tounder65.Vaccinated)); 
+                                                    %sum(f.removeNaN(datafileGP.(fld).aged6monthstounder2years.Vaccinated))+...   
+                                                    % sum(f.removeNaN(datafileGP.(fld).aged2yearstounder16years.Vaccinated))+...
+                                        
+                    total_reg{yearindex}.(fld) = sum(f.removeNaN(datafileGP.(fld).aged16tounder65.Registered));
+                                                %sum(f.removeNaN(datafileGP.(fld).aged6monthstounder2years.Registered))+...  
+                                      % sum(f.removeNaN(datafileGP.(fld).aged2yearstounder16years.Registered))+...        
+                  end
+            end
+        else
+            for fld = Fields
+                  fld = char(fld{1});
+                  % add up the elderly
+                  if strcmpi(fld, 'Elderly')
+                    total_vac{yearindex}.Elderly  =  sum(f.removeNaN(datafileGP.Allpatients.aged65andover.Vaccinated));
+                    total_reg{yearindex}.Elderly = sum(f.removeNaN(datafileGP.Allpatients.aged65andover.Registered));
+                  % add in pregnant women
+                  elseif strcmpi(fld, 'PregnantWomen')
+                      total_vac{yearindex}.PregnantWomenRiskGroup = 0; %sum(f.removeNaN(datafileGP.(fld).PregnantandINaclinicalriskgroup.Vaccinated));
+                      total_reg{yearindex}.PregnantWomenRiskGroup = 0; %sum(f.removeNaN(datafileGP.(fld).PregnantandINaclinicalriskgroup.Registered));
+                      total_vac{yearindex}.PregnantWomenNotRiskGroup = 0; %sum(f.removeNaN(datafileGP.(fld).PregnantandNOTINaclinicalriskgroup.Vaccinated));
+                      total_reg{yearindex}.PregnantWomenNotRiskGroup = 0; %sum(f.removeNaN(datafileGP.(fld).PregnantandNOTINaclinicalriskgroup.Registered));
+                  % add in carers in whatever capacity
+                  elseif strcmpi(fld, 'Carers')
+                       total_vac{yearindex}.Carers = sum(f.removeNaN(datafileGP.(fld).agedunder65notatriskwhofulfilthecarerdefinition.Vaccinated));
+                       total_reg{yearindex}.Carers = sum(f.removeNaN(datafileGP.(fld).agedunder65notatriskwhofulfilthecarerdefinition.Registered));
+                  % add in everyone else under risk group 
+                  else
+                    total_vac{yearindex}.(fld)  =  sum(f.removeNaN(datafileGP.(fld).aged16tounder65years.Vaccinated));
+%                                             sum(f.removeNaN(datafileGP.(fld).aged6monthstounder2years.Vaccinated))+...       
+%                                          sum(f.removeNaN(datafileGP.(fld).aged2yearstounder5years.Vaccinated))+...
+%                                          sum(f.removeNaN(datafileGP.(fld).aged5yearstounder16years.Vaccinated))+...
+                                         
+                    total_reg{yearindex}.(fld) = sum(f.removeNaN(datafileGP.(fld).aged16tounder65years.Registered));
+%                                                  sum(f.removeNaN(datafileGP.(fld).aged6monthstounder2years.Registered))+...
+%                                        sum(f.removeNaN(datafileGP.(fld).aged2yearstounder5years.Registered))+...
+%                                        sum(f.removeNaN(datafileGP.(fld).aged5yearstounder16years.Registered))+...
+                                       
+                  end
+            end
+            
         end
-        
                 % combine all entries for total in risk groups
        
                 array_vac_uncombined(:,yearindex) = struct2array(total_vac{yearindex});
@@ -93,13 +129,23 @@ function plotUptakebyRisk(year1data, year2data, year3data, year4data, year4pharm
                 riskgroupsreported_registered(yearindex) = sum(array_reg_uncombined(2:(end-2),yearindex));
                 
                 %% calculate number of doses given to 16-65 (excluding carers, and pregnant women)
-                total_vaccinated_asreported(yearindex)  =  sum(f.removeNaN(datafileGP.TotalAtRiskpatients.aged16tounder65.Vaccinated)) - ...
-                                                           sum(f.removeNaN(datafileGP.PregnantWomen.PregnantandNOTINaclinicalriskgroup.Vaccinated)) - ...
-                                                           sum(f.removeNaN(datafileGP.Carers.agedunder65notatriskwhofulfilthecarerdefinition.Vaccinated));
-                total_registered_asreported(yearindex)  =  sum(f.removeNaN(datafileGP.TotalAtRiskpatients.aged16tounder65.Registered)) - ...
-                                                           sum(f.removeNaN(datafileGP.PregnantWomen.PregnantandNOTINaclinicalriskgroup.Registered)) - ...
-                                                           sum(f.removeNaN(datafileGP.Carers.agedunder65notatriskwhofulfilthecarerdefinition.Registered));
-                          
+        if ~strcmp(years, '2014_2015')         
+                    total_vaccinated_asreported(yearindex)  =  sum(f.removeNaN(datafileGP.TotalAtRiskpatients.aged16tounder65.Vaccinated)) - ...
+                                                               sum(f.removeNaN(datafileGP.PregnantWomen.PregnantandNOTINaclinicalriskgroup.Vaccinated)) - ...
+                                                               sum(f.removeNaN(datafileGP.Carers.agedunder65notatriskwhofulfilthecarerdefinition.Vaccinated));
+                    total_registered_asreported(yearindex)  =  sum(f.removeNaN(datafileGP.TotalAtRiskpatients.aged16tounder65.Registered)) - ...
+                                                               sum(f.removeNaN(datafileGP.PregnantWomen.PregnantandNOTINaclinicalriskgroup.Registered)) - ...
+                                                               sum(f.removeNaN(datafileGP.Carers.agedunder65notatriskwhofulfilthecarerdefinition.Registered));
+        else
+                    total_vaccinated_asreported(yearindex)  =  sum(f.removeNaN(datafileGP.TotalAtRiskpatients.aged16yearstounder65years.Vaccinated)) - ...
+                                                               sum(f.removeNaN(datafileGP.Carers.agedunder65notatriskwhofulfilthecarerdefinition.Vaccinated));
+                                                               %sum(f.removeNaN(datafileGP.PregnantWomen.PregnantandNOTINaclinicalriskgroup.Vaccinated)) - 
+                                                               
+                    total_registered_asreported(yearindex)  =  sum(f.removeNaN(datafileGP.TotalAtRiskpatients.aged16yearstounder65years.Registered)) - ...
+                                                               sum(f.removeNaN(datafileGP.Carers.agedunder65notatriskwhofulfilthecarerdefinition.Registered));
+                                                               %sum(f.removeNaN(datafileGP.PregnantWomen.PregnantandNOTINaclinicalriskgroup.Registered)) - 
+                                                               
+        end
                 %% calculating over-reporting due to co-morbidity data entry
                 %overcountingfactor_vaccinated(yearindex) = riskgroupsreported_vaccinated(yearindex) ./ total_vaccinated_asreported(yearindex);
                 overcountingfactor_registered(yearindex) = riskgroupsreported_registered(yearindex) ./ total_registered_asreported(yearindex);
@@ -283,7 +329,7 @@ function plotUptakebyRisk(year1data, year2data, year3data, year4data, year4pharm
     xlim([0 11])
     ylim([0 1.2])
     set(gca, 'YTick', 0:0.25:1.0)
-    leg = legend('2010-11 (GP)', '2011-12 (GP)', '2012-13 (GP)', '2013-14 (GP & Pharmacy)');
+    leg = legend('2010-11 (GP)', '2011-12 (GP)', '2012-13 (GP)', '2013-14 (GP & Pharmacy)', '2014-15 (GP & Pharmacy)');
     set(leg, 'Location', 'NorthWest', 'FontSize', 18)
     legend('boxoff')
     numgroups = size(frac_vac_sort, 1);

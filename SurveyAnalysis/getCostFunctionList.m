@@ -7,7 +7,7 @@ function cost = getCostFunctionList()
 end
 
 
-function cost = CalculateAdminCost(data, data_gp, func)
+function cost = CalculateAdminCost(data, data_gp, func, year)
     
 
     % fridge, gauze/tape, waste facilities, waste removal, hire asst (per hour), hire dispenser (per hour),
@@ -16,8 +16,16 @@ function cost = CalculateAdminCost(data, data_gp, func)
     % asst, disp/technician, pre-reg, pharmacist  (2013 annual salaries (pre-tax))
     annual_salary = [6.31*1589, 6.93*1589, 18440, 38610*1.19];
     salary_per_min = annual_salary / (1589*60);
-    number_of_doses_per_pharmacist = 95;
-    number_doses = 68220;
+    if strcmp(year, '2013_2014')
+        number_of_doses_per_pharmacist = 95;
+        number_doses = 68220;
+        total_gp_doses = 1059538;
+    elseif strcmp(year, '2014_2015')
+        number_of_doses_per_pharmacist = 99;
+        number_doses = 108186;
+        total_gp_doses = 1124204;
+    else
+    end
     %number_of_pharmacies = number_doses / number_of_doses_per_pharmacist;
     yearsofdepreciation = 10;
     sonar_investment_cost = 36000;
@@ -33,7 +41,7 @@ function cost = CalculateAdminCost(data, data_gp, func)
                           5.25 %Enzira (MASTA) XX (set same as Enzira Pfizer)
                           6.29 %InactivatedInfluenzavaccineBPMASTA XX (set same as SPMSD)
                           5.22 %InfluvacMASTA XX (set same as influvacc Abbott)
-                          5.22 %CSLInactivatedInfluenzavaccineMASTA (set same as Enzira)
+                          5.25 %CSLInactivatedInfluenzavaccineMASTA (set same as Enzira)
                           6.59 %AgrippalNovartis XXX
                           6.59 %OptafluNovartis XXX
                           5.25 %CSLInactivatedInfluenzavaccinePfizer (marketed as Enzira) XXX
@@ -172,7 +180,7 @@ function cost = CalculateAdminCost(data, data_gp, func)
         
     GP_vaccinecosts_perdose   =   sum(h_gp' .* brands_list_prices);
     out1 = sprintf('Purchase Reimbursement by NHS if administered via GP: £%.2f (won''t change from year to year)', GP_vaccinecosts_perdose);
-    out2 = sprintf('Total Purchase Reimbursement by NHS if administered via GP (2013): £%.f (depends on total vaccs given by year)', GP_vaccinecosts_perdose*1059538);
+    out2 = sprintf('Total Purchase Reimbursement by NHS if administered via GP (2013): £%.f (depends on total vaccs given by year)', GP_vaccinecosts_perdose*total_gp_doses);
     disp(out1)
     disp(out2)
     PHARMACY_vaccinecosts_perdose = averagecost_perdose';

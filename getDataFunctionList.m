@@ -14,33 +14,65 @@ function data = ReadInData(datatype, years)
         filename = ['readin_PharmacyData_',years];
         fid = fopen(filename, 'r');
         str = fgets(fid);
-        readinformat = '%s %s %s %s %s %s %s %s %s %s %s'; 
+        if strcmp(years, '2013_2014')
+                
+                readinformat = '%s %s %s %s %s %s %s %s %s %s %s'; 
 
-        % read in header and data and close the file
-        headerlines = textscan(str, readinformat, 'Delimiter', '\t');
-        dataout = textscan(fid, readinformat, 'Delimiter', '\t');
-        fclose(fid);
+                % read in header and data and close the file
+                headerlines = textscan(str, readinformat, 'Delimiter', '\t');
+                dataout = textscan(fid, readinformat, 'Delimiter', '\t');
+                fclose(fid);
 
-        % save as separate cells
-        for i = 1:size(headerlines,2)
-            header = headerlines{i};
-            header = header{1};
-            data.(header) = dataout{i};
+                % save as separate cells
+                for i = 1:size(headerlines,2)
+                    header = headerlines{i};
+                    header = header{1};
+                    data.(header) = dataout{i};
+                end
+
+
+                % fill in ends of last columns of strings
+                presize = size(data.Inclusion2,1);
+                dif = size(data.LocationID,1) - presize;
+                if dif>0
+                    for i = 1:dif
+                        data.Inclusion2{presize+i} = '';
+                    end
+                end
+
+                % grab postcode at the end of the Location member
+                data.PostCodes = cellfun(@getPostCode, data.LocationName);
+        else
+            
+                
+                headerformat = '%s %s %s %s %s %s %s %s %s %s %s'; 
+                readinformat = '%s %s %s %d %s %s %s %s %s %s %s'; 
+                % read in header and data and close the file
+                headerlines = textscan(str, headerformat, 'Delimiter', '\t');
+                dataout = textscan(fid, readinformat, 'Delimiter', '\t');
+                fclose(fid);
+
+                % save as separate cells
+                for i = 1:size(headerlines,2)
+                    header = headerlines{i};
+                    header = header{1};
+                    data.(header) = dataout{i};
+                end
+
+
+                % fill in ends of last columns of strings
+                presize = size(data.Month,1);
+                dif = size(data.LocationName,1) - presize;
+                if dif>0
+                    for i = 1:dif
+                        data.Month{presize+i} = '';
+                    end
+                end
+
+                % grab postcode at the end of the Location member
+                %data.PostCodes = cellfun(@getPostCode, data.LocationName);
+            
         end
-
-
-        % fill in ends of last columns of strings
-        presize = size(data.Inclusion2,1);
-        dif = size(data.LocationID,1) - presize;
-        if dif>0
-            for i = 1:dif
-                data.Inclusion2{presize+i} = '';
-            end
-        end
-
-        % grab postcode at the end of the Location member
-        data.PostCodes = cellfun(@getPostCode, data.LocationName);
-
         
         
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

@@ -115,9 +115,9 @@ for years = {'2010_2011', '2011_2012', '2012_2013', '2013_2014'}
 end
 
 %% PLOTTING by PCT
-function plotUptakebyPCT_combined(year1data, year2data, year3data, year4data, year4pharmdata, f)
+function plotUptakebyPCT_combined(year1data, year2data, year3data, year4data, year5data, year4pharmdata, year5pharmdata, f)
 yearindex = 0;
-    for years = {'2010_2011', '2011_2012', '2012_2013', '2013_2014'}   
+    for years = {'2010_2011', '2011_2012', '2012_2013', '2013_2014', '2014_2015'}   
         years = years{1};
         yearindex = yearindex + 1;
         % pick the year
@@ -137,6 +137,13 @@ yearindex = 0;
             %% MOVE CCG Names to PCT Names so easily comparable
             datafileGP.PCTName = cellfun(f.RelabelCCGasPCT, datafileGP.PCTName, 'UniformOutput', false);
             %PCTNames = unique(datafileGP.PCTName)';
+        elseif strcmp(years, '2014_2015')
+            datafileGP = year5data;
+            datafileGP.PCTName = cellfun(f.RemovePCT, datafileGP.PCTName, 'UniformOutput', false);
+            datafilePH = year5pharmdata;
+            %% MOVE CCG Names to PCT Names so easily comparable
+            datafileGP.PCTName = cellfun(f.RelabelCCGasPCT, datafileGP.PCTName, 'UniformOutput', false);
+            %PCTNames = unique(datafileGP.PCTName)';
         end
 
         %get the PCTs
@@ -148,37 +155,57 @@ yearindex = 0;
             %locate logicals for PCT
             arr.(looppct) = cellfun(@(a)strcmp(a, pctname), datafileGP.PCTName);
             %add up submatrix of vaccinated for PCT
-            TotalVacc.(looppct) = sum(f.removeNaN(datafileGP.Allpatients.aged65andover.Vaccinated(arr.(looppct))))... %elderly patients
-                                    + sum(f.removeNaN(datafileGP.TotalAtRiskpatients.aged16tounder65.Vaccinated(arr.(looppct)))) ... 16-65 clinical risk groups
-                                     + sum(f.removeNaN(datafileGP.PregnantWomen.PregnantandNOTINaclinicalriskgroup.Vaccinated(arr.(looppct)))) ... pregnant women
-                                     + sum(f.removeNaN(datafileGP.Carers.agedunder65notatriskwhofulfilthecarerdefinition.Vaccinated(arr.(looppct)))); %  carers;
-                                    
-                                
-            TotalReg.(looppct) = sum(f.removeNaN(datafileGP.Allpatients.aged65andover.Registered(arr.(looppct))))...
-                                    + sum(f.removeNaN(datafileGP.TotalAtRiskpatients.aged16tounder65.Registered(arr.(looppct)))) ... 16-65 clinical risk groups
-                                     + sum(f.removeNaN(datafileGP.PregnantWomen.PregnantandNOTINaclinicalriskgroup.Registered(arr.(looppct)))) ... pregnant women
-                                     + sum(f.removeNaN(datafileGP.Carers.agedunder65notatriskwhofulfilthecarerdefinition.Registered(arr.(looppct)))); % carers;
-                                    
+            if ~strcmp(years, '2014_2015')
+                TotalVacc.(looppct) = sum(f.removeNaN(datafileGP.Allpatients.aged65andover.Vaccinated(arr.(looppct))))... %elderly patients
+                                        + sum(f.removeNaN(datafileGP.TotalAtRiskpatients.aged16tounder65.Vaccinated(arr.(looppct)))) ... 16-65 clinical risk groups
+                                         + sum(f.removeNaN(datafileGP.PregnantWomen.PregnantandNOTINaclinicalriskgroup.Vaccinated(arr.(looppct)))) ... pregnant women
+                                         + sum(f.removeNaN(datafileGP.Carers.agedunder65notatriskwhofulfilthecarerdefinition.Vaccinated(arr.(looppct)))); %  carers;
+
+
+                TotalReg.(looppct) = sum(f.removeNaN(datafileGP.Allpatients.aged65andover.Registered(arr.(looppct))))...
+                                        + sum(f.removeNaN(datafileGP.TotalAtRiskpatients.aged16tounder65.Registered(arr.(looppct)))) ... 16-65 clinical risk groups
+                                         + sum(f.removeNaN(datafileGP.PregnantWomen.PregnantandNOTINaclinicalriskgroup.Registered(arr.(looppct)))) ... pregnant women
+                                         + sum(f.removeNaN(datafileGP.Carers.agedunder65notatriskwhofulfilthecarerdefinition.Registered(arr.(looppct)))); % carers;
+            else
+                TotalVacc.(looppct) = sum(f.removeNaN(datafileGP.Allpatients.aged65andover.Vaccinated(arr.(looppct))))... %elderly patients
+                                        + sum(f.removeNaN(datafileGP.TotalAtRiskpatients.aged16yearstounder65years.Vaccinated(arr.(looppct)))) ... 16-65 clinical risk groups
+                                         + sum(f.removeNaN(datafileGP.Carers.agedunder65notatriskwhofulfilthecarerdefinition.Vaccinated(arr.(looppct)))); %  carers;
+
+
+                TotalReg.(looppct) = sum(f.removeNaN(datafileGP.Allpatients.aged65andover.Registered(arr.(looppct))))...
+                                        + sum(f.removeNaN(datafileGP.TotalAtRiskpatients.aged16yearstounder65years.Registered(arr.(looppct)))) ... 16-65 clinical risk groups
+                                         + sum(f.removeNaN(datafileGP.Carers.agedunder65notatriskwhofulfilthecarerdefinition.Registered(arr.(looppct)))); % carers;
+            end
             %calculate percentage vaccinated
             pcVacc{yearindex}.(looppct) = TotalVacc.(looppct)/TotalReg.(looppct);                   
             sdVacc{yearindex}.(looppct) = sqrt(pcVacc{yearindex}.(looppct)*(1-pcVacc{yearindex}.(looppct))/TotalReg.(looppct));
             
             %count up rows in pharmacy data for each PCT
-            if strcmp(years, '2013_2014')
-                dosecount.(looppct) = sum( cellfun( @(pctname, reference)strcmpi(strtrim(pctname), strtrim(reference)), datafilePH.PCTGP, repmat(pctname, size(datafilePH.PCTGP,1),1)));
- 
+            if strcmp(years, '2013_2014') || strcmp(years, '2014_2015')
+                
+                if strcmp(years, '2013_2014')
+                    index = 1;
+                    dosecount{index}.(looppct) = sum( cellfun( @(pctname, reference)strcmpi(strtrim(pctname), strtrim(reference)), datafilePH.PCTGP, repmat(pctname, size(datafilePH.PCTGP,1),1)));
+                    
+                else
+                    index = 2;
+                    dosecount{index}.(looppct) = sum( cellfun( @(pctname, reference, numRecords) (double(numRecords) .* strcmpi(strtrim(pctname), strtrim(reference))),...
+                                                                            datafilePH.PracticeBorough, ...
+                                                                            repmat(pctname, size(datafilePH.PracticeBorough,1),1),...
+                                                                            mat2cell(datafilePH.NoRecords, ones(size(datafilePH.NoRecords,1), 1))));
+                end
                 % 2 rows need to be changed for more pharmacy data 2014-5
                 %pcVaccPharm{1}.(looppct) = (TotalVacc.(looppct) + dosecount.(looppct))/TotalReg.(looppct); 
                 %sdVaccPharm1{1}.(looppct) = sqrt(pcVaccPharm{1}.(looppct)*(1-pcVaccPharm{1}.(looppct))/TotalReg.(looppct));
                 
                 %overall prob that eligible person administered at pharmacy
-                pcVaccPharmONLY{1}.(looppct) = dosecount.(looppct)/TotalReg.(looppct);
-                sdVaccPharm2{1}.(looppct) = sqrt(pcVaccPharmONLY{1}.(looppct)*(1-pcVaccPharmONLY{1}.(looppct))/TotalReg.(looppct));
+                pcVaccPharmONLY{index}.(looppct) = dosecount{index}.(looppct)/TotalReg.(looppct);
+                sdVaccPharm2{index}.(looppct) = sqrt(pcVaccPharmONLY{1}.(looppct)*(1-pcVaccPharmONLY{1}.(looppct))/TotalReg.(looppct));
                 
                 % prob that given dose administered at pharmacy 
                 %fracPharmONLY{1}.(looppct) = dosecount.(looppct) / (TotalVacc.(looppct) + dosecount.(looppct));
-                fracPharmONLY{1}.(looppct) = dosecount.(looppct) / (TotalVacc.(looppct));
-                sdVaccPharm3{1}.(looppct) = sqrt(fracPharmONLY{1}.(looppct)*(1-fracPharmONLY{1}.(looppct))/(TotalVacc.(looppct)));
+                fracPharmONLY{index}.(looppct) = dosecount{index}.(looppct) / (TotalVacc.(looppct));
+                sdVaccPharm3{index}.(looppct) = sqrt(fracPharmONLY{1}.(looppct)*(1-fracPharmONLY{1}.(looppct))/(TotalVacc.(looppct)));
                 
             end
             
@@ -191,23 +218,25 @@ yearindex = 0;
         outarray(:,yearindex) = cell2mat(struct2cell(pcVacc{yearindex}));
         sdarray(:,yearindex) = cell2mat(struct2cell(sdVacc{yearindex}));
         
-        if strcmp(years, '2013_2014')
-            %pharmarray(:,1) = cell2mat(struct2cell(pcVaccPharm{1}));
-            %sdvaccpharm1(:,1) = cell2mat(struct2cell(sdVaccPharm1{1}));
-            pharmarrayONLY(:,1) = cell2mat(struct2cell(pcVaccPharmONLY{1}));
-            sdvaccpharm2(:,1) = cell2mat(struct2cell(sdVaccPharm2{1}));
-            fracpharmarrayONLY(:,1) = cell2mat(struct2cell(fracPharmONLY{1}));
-            sdvaccpharm3(:,1) = cell2mat(struct2cell(sdVaccPharm3{1}));
+        if strcmp(years, '2014_2015')
+            for index = 1:2
+                %pharmarray(:,1) = cell2mat(struct2cell(pcVaccPharm{1}));
+                %sdvaccpharm1(:,1) = cell2mat(struct2cell(sdVaccPharm1{1}));
+                pharmarrayONLY(:,index) = cell2mat(struct2cell(pcVaccPharmONLY{index}));
+                sdvaccpharm2(:,index) = cell2mat(struct2cell(sdVaccPharm2{index}));
+                fracpharmarrayONLY(:,index) = cell2mat(struct2cell(fracPharmONLY{index}));
+                sdvaccpharm3(:,index) = cell2mat(struct2cell(sdVaccPharm3{index}));
+            end
         end
     end
     
         % main plot
         [allarray, sortindex] = sortrows(outarray, 4);
         allsd = sdarray(sortindex,:);
-        [pharmonlyarray, sortindex_ph] = sort(pharmarrayONLY);
-        sd2arr = sdvaccpharm2(sortindex_ph);
-        [fracpharmonlyarray, sortindex_fracph] = sort(fracpharmarrayONLY);
-        sd3arr = sdvaccpharm3(sortindex_fracph);
+        [pharmonlyarray, sortindex_ph] = sortrows(pharmarrayONLY,1);
+        sd2arr = sdvaccpharm2(sortindex_ph,:);
+        [fracpharmonlyarray, sortindex_fracph] = sortrows(fracpharmarrayONLY,1);
+        sd3arr = sdvaccpharm3(sortindex_fracph,:);
         
         fig = figure;
         %set(fig, 'Position', [100 100 1600 900]);
@@ -222,7 +251,7 @@ yearindex = 0;
         columnspace = 0.03;
         rowspace = 0.07;
         ticksize = 14;
-        titlesize = 16;
+        titlesize = 20;
         xlimits = [0 32];
         %top row
         ax(1) = axes('Position',  [leftmargin,                           bottommargin+plotheight+rowspace, plotwidth, 0.8*plotheight]);
@@ -256,26 +285,46 @@ yearindex = 0;
             PCTNames(sortindex), ...
             'VerticalAlign','top',...
             'HorizontalAlign','right',...
-            'Rotation',45)
-        leg = legend('2010-11 (GP)', '2011-12 (GP)', '2012-13 (GP)', '2013-14 (GP & Pharmacy)');
+            'Rotation',45, ...
+            'FontSize', ticksize)
+        leg = legend('2010-11 (GP)', '2011-12 (GP)', '2012-13 (GP)', '2013-14 (GP & Pharmacy)', '2014-15 (GP & Pharmacy)');
         set(leg, 'Location', 'NorthWest', 'FontSize', 14)
         legend('boxoff')
         set(gca, 'FontSize', ticksize)
-        title('Fraction of registered individuals vaccinated', 'FontSize', titlesize)
+        title('c) Fraction of registered individuals vaccinated', 'FontSize', titlesize)
         xlim(xlimits) 
 
-
+        cmap = [0.2, 0.2, 0.9;
+                0.8, 0.8, 0.9;
+                0.8, 0.8, 0.9];
 
         % plot top row (1)
+        %colormap(cmap)
         axes(ax(1)), hold on;
         %inset = axes('Position', [mainax(1) mainax(2)+mainax(4) 0.5*mainax(3) mainax(4)]);
         h = bar(fracpharmonlyarray);
-        x = get(h, 'XData');
-        plot([x; x], [fracpharmonlyarray-1.96*sdvaccpharm2 fracpharmonlyarray+1.96*sdvaccpharm2]', 'k-');
+%             x = get(h, 'XData');
+%             plot([x{1}; x{1}], [fracpharmonlyarray(:)-1.96*sdvaccpharm2 fracpharmonlyarray+1.96*sdvaccpharm2]', 'k-');
+        A = get(gca, 'Children');
+        set(A(1), 'FaceColor', [0.6 0.6 0.9])
+        set(A(2), 'FaceColor', [0.9 0.9 0.9])   
+        numgroups = size(fracpharmonlyarray, 1);
+        numbars = size(fracpharmonlyarray, 2);
+        groupwidth = min(0.8, numbars/(numbars+1.5));
+        
+        for i = 1:numbars
+            % Based on barweb.m by Bolu Ajiboye from MATLAB File Exchange
+            x = (1:numgroups) - groupwidth/2 + (2*i-1) * groupwidth / (2*numbars);  % Aligning error bar with individual bar
+            plot([x; x], [fracpharmonlyarray(:,i)-1.96*sdvaccpharm2(:,i) fracpharmonlyarray(:,i)+1.96*sdvaccpharm2(:,i)]', 'k-');
+            %e = errorbar(x, allarray(:,i), allsd(:,i), 'k', 'linestyle', 'none');
+            %errorbar_tick(e,80);
+        end
+        
+        
             %e = errorbar(x, allarray(:,i), allsd(:,i), 'k', 'linestyle', 'none');
             %errorbar_tick(e,80);
         
-        set(h, 'FaceColor', [0.8, 0.8, 0.9]);
+        %set(h, 'FaceColor', [0.8, 0.8, 0.9]);
         box off;
         %ylim([0 0.22])
         shortnames = cellfun( @f.getShortNames, PCTNames(sortindex_fracph), 'UniformOutput', false);
@@ -286,28 +335,51 @@ yearindex = 0;
             shortnames, ...
             'VerticalAlign','top',...
             'HorizontalAlign','right',...
-            'Rotation',45)
-        %leg = legend('2010-11 (GP)', '2011-12 (GP)', '2012-13 (GP)', '2013-14 (GP)', '2013-14 (GP & Pharmacy)');
+            'Rotation',45, ...
+            'FontSize', ticksize)
+        leg = legend('2013-14', '2014-15');
         set(leg, 'Location', 'NorthWest', 'FontSize', 14)
         legend('boxoff')
         set(gca, 'FontSize', ticksize)
-        title('Fraction of doses administered at pharmacy', 'FontSize', titlesize)
+        title('a) Fraction of doses administered at pharmacy', 'FontSize', titlesize)
         xlim(xlimits)
                 %% inset histogram
                 rax = get(gca, 'Position');
                 axes('Position', [rax(1)+0.15*rax(4) rax(2)+0.35*rax(3) 0.35*rax(3) 0.5*rax(4)]);
-                hist(fracpharmonlyarray);
-                hq = findobj(gca,'Type','patch');
-                hq.FaceColor = [0.8, 0.8, 0.9];
+                [hist1, mdpts1] = hist(fracpharmonlyarray);
+                bar(mdpts1, hist1)
+                A = get(gca, 'Children');
+                set(A(1), 'FaceColor', [0.6 0.6 0.9])
+                set(A(2), 'FaceColor', [0.9 0.9 0.9])   
+%                 hq = findobj(gca,'Type','patch');
+%                 hq.FaceColor = [0.8, 0.8, 0.9];
                 ylabel('Frequency', 'FontSize', 12);
                 box off;
+                
+                
+                
         % plot top row two
         axes(ax(2)), hold on;
         %inset = axes('Position', [ax(1)+0.5*ax(3) ax(2)+0.6*ax(4) 0.5*ax(3) 0.4*ax(4)]);
-        h = bar(pharmonlyarray);
-        x = get(h, 'XData');
-        plot([x; x], [pharmonlyarray-1.96*sdvaccpharm3 pharmonlyarray+1.96*sdvaccpharm3]', 'k-');
-        set(h, 'FaceColor', [0.8, 0.9, 0.8]);
+        bar(pharmonlyarray);
+        %x = get(h, 'XData');
+        A = get(gca, 'Children');
+        set(A(1), 'FaceColor', [0.6 0.6 0.9])
+        set(A(2), 'FaceColor', [0.9 0.9 0.9])
+        
+        numgroups = size(pharmonlyarray, 1);
+        numbars = size(pharmonlyarray, 2);
+        groupwidth = min(0.8, numbars/(numbars+1.5));
+        
+        for i = 1:numbars
+            % Based on barweb.m by Bolu Ajiboye from MATLAB File Exchange
+            x = (1:numgroups) - groupwidth/2 + (2*i-1) * groupwidth / (2*numbars);  % Aligning error bar with individual bar
+            plot([x; x], [pharmonlyarray(:,i)-1.96*sdvaccpharm3(:,i) pharmonlyarray(:,i)+1.96*sdvaccpharm3(:,i)]', 'k-');
+            %e = errorbar(x, allarray(:,i), allsd(:,i), 'k', 'linestyle', 'none');
+            %errorbar_tick(e,80);
+        end
+%                 plot([x; x], [pharmonlyarray-1.96*sdvaccpharm3 pharmonlyarray+1.96*sdvaccpharm3]', 'k-');
+%                 set(h, 'FaceColor', [0.8, 0.9, 0.8]);
         box off;
         %ylim([0 0.22])
         shortnames = cellfun( @f.getShortNames, PCTNames(sortindex_ph), 'UniformOutput', false);
@@ -318,19 +390,24 @@ yearindex = 0;
             shortnames, ...
             'VerticalAlign','top',...
             'HorizontalAlign','right',...
-            'Rotation',45)
-        %leg = legend('2010-11 (GP)', '2011-12 (GP)', '2012-13 (GP)', '2013-14 (GP)', '2013-14 (GP & Pharmacy)');
+            'Rotation',45, ...
+            'FontSize', ticksize)
+        leg = legend('2013-14', '2014-15');
         set(leg, 'Location', 'NorthWest', 'FontSize', 14)
         legend('boxoff')
         set(gca, 'FontSize', ticksize)
-        title('Fraction of registered patients receiving dose at pharmacy', 'FontSize', titlesize)
+        title('b) Fraction of registered patients receiving dose at pharmacy', 'FontSize', titlesize)
         xlim(xlimits)
             %% inset histogram
                 rax = get(gca, 'Position');
                 axes('Position', [rax(1)+0.15*rax(4) rax(2)+0.35*rax(3) 0.35*rax(3) 0.5*rax(4)]);
-                hist(pharmonlyarray);
-                hq = findobj(gca,'Type','patch');
-                hq.FaceColor = [0.8, 0.9, 0.8];
+                [hist2, mdpts2] = hist(pharmonlyarray);
+                bar(mdpts2, hist2)
+                A = get(gca, 'Children');
+                set(A(1), 'FaceColor', [0.6 0.6 0.9])
+                set(A(2), 'FaceColor', [0.9 0.9 0.9])
+%                 hq = findobj(gca,'Type','patch');
+%                 hq.FaceColor = [0.8, 0.9, 0.8];
                 ylabel('Frequency', 'FontSize', 12);
                 box off;
  end 
@@ -472,12 +549,15 @@ function plotCorrelationinUptake(datafileGP_year0, datafileGP_year1, datafileGP_
         secondarray.Median(1) = [];
         
         %lines of best fit (uptakes)
+         
         X1 = uptakearray(:,2); %2012-3
         X2 = uptakearray(:,3); %2013-4
         y1 = uptakearray(:,3); %2013-4
         y2 = fracpharmarrayONLY; %2013-4 pharmacy prob
+        predictors = [X1, y2];
         mdl1 = fitlm(X1, y1); coeff1 = table2array(mdl1.Coefficients); int1 = coeff1(1,1); grad1 = coeff1(2,1);
         mdl2 = fitlm(X2, y2); coeff2 = table2array(mdl2.Coefficients); int2 = coeff2(1,1); grad2 = coeff2(2,1);
+        fullmdl = fitlm(predictors,y1); 
         
         %lines of best fit (income)
         mdl_income1a = fitlm(firstarray.Mean, fracpharmarrayONLY); coeff_income1a = table2array(mdl_income1a.Coefficients); int_income1a = coeff_income1a(1,1); grad_income1a = coeff_income1a(2,1);
