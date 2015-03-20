@@ -167,13 +167,15 @@ yearindex = 0;
                                          + sum(f.removeNaN(datafileGP.PregnantWomen.PregnantandNOTINaclinicalriskgroup.Registered(arr.(looppct)))) ... pregnant women
                                          + sum(f.removeNaN(datafileGP.Carers.agedunder65notatriskwhofulfilthecarerdefinition.Registered(arr.(looppct)))); % carers;
             else
-                TotalVacc.(looppct) = sum(f.removeNaN(datafileGP.Allpatients.aged65andover.Vaccinated(arr.(looppct))))... %elderly patients
-                                        + sum(f.removeNaN(datafileGP.TotalAtRiskpatients.aged16yearstounder65years.Vaccinated(arr.(looppct)))) ... 16-65 clinical risk groups
+                TotalVacc.(looppct) = sum(f.removeNaN(datafileGP.AllPatients.aged65andover.Vaccinated(arr.(looppct))))... %elderly patients
+                                        + sum(f.removeNaN(datafileGP.Totalatriskpatients.aged16yearstounder65years.Vaccinated(arr.(looppct)))) ... 16-65 clinical risk groups
+                                         + sum(f.removeNaN(datafileGP.TotalOthers.PregnantandNOTINaclinicalriskgroup.Vaccinated(arr.(looppct)))) ... pregnant women
                                          + sum(f.removeNaN(datafileGP.Carers.agedunder65notatriskwhofulfilthecarerdefinition.Vaccinated(arr.(looppct)))); %  carers;
 
 
-                TotalReg.(looppct) = sum(f.removeNaN(datafileGP.Allpatients.aged65andover.Registered(arr.(looppct))))...
-                                        + sum(f.removeNaN(datafileGP.TotalAtRiskpatients.aged16yearstounder65years.Registered(arr.(looppct)))) ... 16-65 clinical risk groups
+                TotalReg.(looppct) = sum(f.removeNaN(datafileGP.AllPatients.aged65andover.Registered(arr.(looppct))))...
+                                        + sum(f.removeNaN(datafileGP.Totalatriskpatients.aged16yearstounder65years.Registered(arr.(looppct)))) ... 16-65 clinical risk groups
+                                        + sum(f.removeNaN(datafileGP.TotalOthers.PregnantandNOTINaclinicalriskgroup.Registered(arr.(looppct)))) ... pregnant women
                                          + sum(f.removeNaN(datafileGP.Carers.agedunder65notatriskwhofulfilthecarerdefinition.Registered(arr.(looppct)))); % carers;
             end
             %calculate percentage vaccinated
@@ -458,12 +460,12 @@ function plotFractionFluShotAtPharmacy(GPdata, PHdata, f)
             
 end
 
-function plotCorrelationinUptake(datafileGP_year0, datafileGP_year1, datafileGP_year2, datafilePH, dataIncome, f)
+function plotCorrelationinUptake(datafileGP_year0, datafileGP_year1, datafileGP_year2, datafileGP_year3, datafilePH1, datafilePH2, dataIncome, f)
 
         
         
         yearindex = 0;
-        for years = {'2011_2012','2012_2013', '2013_2014'}   
+        for years = {'2011_2012','2012_2013', '2013_2014','2014_2015'}   
             years = years{1};
             yearindex = yearindex + 1;
             % pick the year
@@ -478,6 +480,13 @@ function plotCorrelationinUptake(datafileGP_year0, datafileGP_year1, datafileGP_
                 datafileGP.PCTName = cellfun(f.RemovePCT, datafileGP.PCTName, 'UniformOutput', false);
                 %% MOVE CCG Names to PCT Names so easily comparable
                 datafileGP.PCTName = cellfun(f.RelabelCCGasPCT, datafileGP.PCTName, 'UniformOutput', false);
+                datafilePH = datafilePH1;
+            else
+                datafileGP = datafileGP_year3;
+                datafileGP.PCTName = cellfun(f.RemovePCT, datafileGP.PCTName, 'UniformOutput', false);
+                %% MOVE CCG Names to PCT Names so easily comparable
+                datafileGP.PCTName = cellfun(f.RelabelCCGasPCT, datafileGP.PCTName, 'UniformOutput', false);
+                datafilePH = datafilePH2;
             end
             
             
@@ -491,30 +500,69 @@ function plotCorrelationinUptake(datafileGP_year0, datafileGP_year1, datafileGP_
                     arr.(looppct) = cellfun(@(a)strcmp(a, pctname), datafileGP.PCTName);
                     
                     %add up submatrix of vaccinated for PCT
-                    TotalVacc.(looppct) = sum(datafileGP.Allpatients.aged65andover.Vaccinated(arr.(looppct)))...
-                                            + sum(datafileGP.TotalAtRiskpatients.aged6monthstounder65yearsallagescombined.Vaccinated(arr.(looppct)));
-                    TotalReg.(looppct) = sum(datafileGP.Allpatients.aged65andover.Registered(arr.(looppct)))...
-                                            + sum(datafileGP.TotalAtRiskpatients.aged6monthstounder65yearsallagescombined.Registered(arr.(looppct)));
+%                     TotalVacc.(looppct) = sum(datafileGP.Allpatients.aged65andover.Vaccinated(arr.(looppct)))...
+%                                             + sum(datafileGP.TotalAtRiskpatients.aged6monthstounder65yearsallagescombined.Vaccinated(arr.(looppct)));
+%                     TotalReg.(looppct) = sum(datafileGP.Allpatients.aged65andover.Registered(arr.(looppct)))...
+%                                             + sum(datafileGP.TotalAtRiskpatients.aged6monthstounder65yearsallagescombined.Registered(arr.(looppct)));
+                    if ~strcmp(years, '2014_2015')
+                        TotalVacc.(looppct) = sum(f.removeNaN(datafileGP.Allpatients.aged65andover.Vaccinated(arr.(looppct))))... %elderly patients
+                                        + sum(f.removeNaN(datafileGP.TotalAtRiskpatients.aged16tounder65.Vaccinated(arr.(looppct)))) ... 16-65 clinical risk groups
+                                         + sum(f.removeNaN(datafileGP.PregnantWomen.PregnantandNOTINaclinicalriskgroup.Vaccinated(arr.(looppct)))) ... pregnant women
+                                         + sum(f.removeNaN(datafileGP.Carers.agedunder65notatriskwhofulfilthecarerdefinition.Vaccinated(arr.(looppct)))); %  carers;
 
+
+                        TotalReg.(looppct) = sum(f.removeNaN(datafileGP.Allpatients.aged65andover.Registered(arr.(looppct))))...
+                                        + sum(f.removeNaN(datafileGP.TotalAtRiskpatients.aged16tounder65.Registered(arr.(looppct)))) ... 16-65 clinical risk groups
+                                         + sum(f.removeNaN(datafileGP.PregnantWomen.PregnantandNOTINaclinicalriskgroup.Registered(arr.(looppct)))) ... pregnant women
+                                         + sum(f.removeNaN(datafileGP.Carers.agedunder65notatriskwhofulfilthecarerdefinition.Registered(arr.(looppct)))); % carers;
+                    else
+                        TotalVacc.(looppct) = sum(f.removeNaN(datafileGP.AllPatients.aged65andover.Vaccinated(arr.(looppct))))... %elderly patients
+                                        + sum(f.removeNaN(datafileGP.Totalatriskpatients.aged16yearstounder65years.Vaccinated(arr.(looppct)))) ... 16-65 clinical risk groups
+                                            + sum(f.removeNaN(datafileGP.TotalOthers.PregnantandNOTINaclinicalriskgroup.Vaccinated(arr.(looppct)))) ... pregnant women
+                                         + sum(f.removeNaN(datafileGP.Carers.agedunder65notatriskwhofulfilthecarerdefinition.Vaccinated(arr.(looppct)))); %  carers;
+
+
+                        TotalReg.(looppct) = sum(f.removeNaN(datafileGP.AllPatients.aged65andover.Registered(arr.(looppct))))...
+                                        + sum(f.removeNaN(datafileGP.Totalatriskpatients.aged16yearstounder65years.Registered(arr.(looppct)))) ... 16-65 clinical risk groups
+                                         + sum(f.removeNaN(datafileGP.TotalOthers.PregnantandNOTINaclinicalriskgroup.Registered(arr.(looppct)))) ... pregnant women
+                                         + sum(f.removeNaN(datafileGP.Carers.agedunder65notatriskwhofulfilthecarerdefinition.Registered(arr.(looppct)))); % carers;
+                    end
                     %calculate percentage vaccinated
                     pcVacc{yearindex}.(looppct) = TotalVacc.(looppct)/TotalReg.(looppct); 
-                    if strcmp(years, '2013_2014')
+                    if strcmp(years, '2013_2014') || strcmp(years, '2014_2015')
+                        
+                            if strcmp(years, '2013_2014')
+                                %index = 1;
+                                dosecount{yearindex-2}.(looppct) = sum( cellfun( @(pctname, reference)strcmpi(strtrim(pctname), strtrim(reference)), datafilePH.PCTGP, repmat(pctname, size(datafilePH.PCTGP,1),1)));
+
+                            else
+                                %index = 2;
+                                dosecount{yearindex-2}.(looppct) = sum( cellfun( @(pctname, reference, numRecords) (double(numRecords) .* strcmpi(strtrim(pctname), strtrim(reference))),...
+                                                                                        datafilePH.PracticeBorough, ...
+                                                                            repmat(pctname, size(datafilePH.PracticeBorough,1),1),...
+                                                                            mat2cell(datafilePH.NoRecords, ones(size(datafilePH.NoRecords,1), 1))));
+                            end
                         % grab number of doses for each PCT (where GP is)
-                        dosecount.(looppct) = sum( cellfun( @(pctname, reference)strcmpi(strtrim(pctname), strtrim(reference)), datafilePH.PCTGP, repmat(pctname, size(datafilePH.PCTGP,1),1)));
+%                         dosecount{yearindex}.(looppct) = sum( cellfun( @(pctname, reference)strcmpi(strtrim(pctname), strtrim(reference)), datafilePH.PCTGP, repmat(pctname, size(datafilePH.PCTGP,1),1)));
 
                         % 2 rows need to be changed for more pharmacy data 2014-5
                         %pcVacc{yearindex}.(looppct) = (TotalVacc.(looppct) + dosecount.(looppct))/TotalReg.(looppct); 
                         % prob that given dose administered at pharmacy 
-                        fracPharmONLY{1}.(looppct) = dosecount.(looppct) / (TotalVacc.(looppct));
+                        fracPharmONLY{yearindex-2}.(looppct) = dosecount{yearindex-2}.(looppct) / (TotalVacc.(looppct));
+                        
                     else
                                       
                     end
+                    
                   
                 end
                 uptakearray(:,yearindex) = cell2mat(struct2cell(pcVacc{yearindex}));
-        
+                if strcmp(years, '2013_2014') || strcmp(years, '2014_2015')
+                    fracpharmarrayONLY(:,yearindex-2) = cell2mat(struct2cell(fracPharmONLY{yearindex-2}));
+                end
+                
         end
-        fracpharmarrayONLY = cell2mat(struct2cell(fracPharmONLY{1}));
+        
         shortnames = cellfun( @f.getShortNames, PCTNames, 'UniformOutput', false);
         
         %% get income data collated
@@ -551,80 +599,87 @@ function plotCorrelationinUptake(datafileGP_year0, datafileGP_year1, datafileGP_
         %lines of best fit (uptakes)
          
         X1 = uptakearray(:,2); %2012-3
-        X2 = uptakearray(:,3); %2013-4
-        y1 = uptakearray(:,3); %2013-4
-        y2 = fracpharmarrayONLY; %2013-4 pharmacy prob
-        predictors = [X1, y2];
-        mdl1 = fitlm(X1, y1); coeff1 = table2array(mdl1.Coefficients); int1 = coeff1(1,1); grad1 = coeff1(2,1);
-        mdl2 = fitlm(X2, y2); coeff2 = table2array(mdl2.Coefficients); int2 = coeff2(1,1); grad2 = coeff2(2,1);
-        fullmdl = fitlm(predictors,y1); 
+        %X2 = uptakearray(:,3); %2013-4
+        X3 = uptakearray(:,4); %2014-5
+        y1 = fracpharmarrayONLY(:,1); %2013-4 pharmacy prob
+        y2 = fracpharmarrayONLY(:,2); %2014-5 pharmacy prob
+        predictors = [X1, y1];
+        mdl1 = fitlm(X1, X3); coeff1 = table2array(mdl1.Coefficients); int1 = coeff1(1,1); grad1 = coeff1(2,1);
+        %mdl2 = fitlm(X2, y2); coeff2 = table2array(mdl2.Coefficients); int2 = coeff2(1,1); grad2 = coeff2(2,1);
+        fullmdl = fitlm(predictors,X3); 
         
         %lines of best fit (income)
-        mdl_income1a = fitlm(firstarray.Mean, fracpharmarrayONLY); coeff_income1a = table2array(mdl_income1a.Coefficients); int_income1a = coeff_income1a(1,1); grad_income1a = coeff_income1a(2,1);
-        mdl_income2a = fitlm(firstarray.Median, fracpharmarrayONLY); coeff_income2a = table2array(mdl_income2a.Coefficients); int_income2a = coeff_income2a(1,1); grad_income2a = coeff_income2a(2,1);
+        mdl_income1a = fitlm(firstarray.Mean, y2); coeff_income1a = table2array(mdl_income1a.Coefficients); int_income1a = coeff_income1a(1,1); grad_income1a = coeff_income1a(2,1);
+        mdl_income2a = fitlm(firstarray.Median, y2); coeff_income2a = table2array(mdl_income2a.Coefficients); int_income2a = coeff_income2a(1,1); grad_income2a = coeff_income2a(2,1);
         
         
-        mdl_income1b = fitlm(secondarray.Mean, fracpharmarrayONLY); coeff_income1b = table2array(mdl_income1b.Coefficients); int_income1b = coeff_income1b(1,1); grad_income1b = coeff_income1b(2,1);
-        mdl_income2b = fitlm(secondarray.Median, fracpharmarrayONLY); coeff_income2b = table2array(mdl_income2b.Coefficients); int_income2b = coeff_income2b(1,1); grad_income2b = coeff_income2b(2,1);
+        mdl_income1b = fitlm(secondarray.Mean, y2); coeff_income1b = table2array(mdl_income1b.Coefficients); int_income1b = coeff_income1b(1,1); grad_income1b = coeff_income1b(2,1);
+        mdl_income2b = fitlm(secondarray.Median, y2); coeff_income2b = table2array(mdl_income2b.Coefficients); int_income2b = coeff_income2b(1,1); grad_income2b = coeff_income2b(2,1);
         
-        %lines of best fit (uptake)
-        mdl_income3a = fitlm(firstarray.Mean, y1); %coeff_income1a = table2array(mdl_income1a.Coefficients); int_income1a = coeff_income1a(1,1); grad_income1a = coeff_income1a(2,1);
-        mdl_income4a = fitlm(firstarray.Median, y1); %coeff_income2a = table2array(mdl_income2a.Coefficients); int_income2a = coeff_income2a(1,1); grad_income2a = coeff_income2a(2,1);
-        
-        
-        mdl_income3b = fitlm(secondarray.Mean, y1); %coeff_income1b = table2array(mdl_income1b.Coefficients); int_income1b = coeff_income1b(1,1); grad_income1b = coeff_income1b(2,1);
-        mdl_income4b = fitlm(secondarray.Median, y1); %coeff_income2b = table2array(mdl_income2b.Coefficients); int_income2b = coeff_income2b(1,1); grad_income2b = coeff_income2b(2,1);
+%         %lines of best fit (income)
+%         mdl_income3a = fitlm(firstarray.Mean, X3); %coeff_income1a = table2array(mdl_income1a.Coefficients); int_income1a = coeff_income1a(1,1); grad_income1a = coeff_income1a(2,1);
+%         mdl_income4a = fitlm(firstarray.Median, X3); %coeff_income2a = table2array(mdl_income2a.Coefficients); int_income2a = coeff_income2a(1,1); grad_income2a = coeff_income2a(2,1);
+%         
+%         
+%         mdl_income3b = fitlm(secondarray.Mean, y1); %coeff_income1b = table2array(mdl_income1b.Coefficients); int_income1b = coeff_income1b(1,1); grad_income1b = coeff_income1b(2,1);
+%         mdl_income4b = fitlm(secondarray.Median, y1); %coeff_income2b = table2array(mdl_income2b.Coefficients); int_income2b = coeff_income2b(1,1); grad_income2b = coeff_income2b(2,1);
         
         
         
         %plots
         subplot(2,2,1)
         hold on;
-        % 2012-3 (2) and 2013-4 (3)
-        plot(uptakearray(:,2), uptakearray(:,3), 'k.', 'MarkerSize',14)
+        % 2012-3 (2) and 2014-5 (4)
+        plot(uptakearray(:,2), uptakearray(:,4), 'k.', 'MarkerSize',14)
         plot([min(uptakearray(:,2)), max(uptakearray(:,2))] , int1 + grad1*[min(uptakearray(:,2)), max(uptakearray(:,2))] , 'r--', 'LineWidth', 1.6)
-        text(uptakearray(:,2), uptakearray(:,3), shortnames, 'horizontal','left', 'vertical','bottom')
-        xlabel('Fraction of eligible people vaccinated 2012-3', 'FontSize', 14)
-        ylabel('Fraction of eligible people vaccinated 2013-4', 'FontSize', 14)
+        text(uptakearray(:,2), uptakearray(:,4), shortnames, 'horizontal','left', 'vertical','bottom')
+        xlabel('Fraction of eligible people vaccinated 2012/13', 'FontSize', 14)
+        ylabel('Fraction of eligible people vaccinated 2014/15', 'FontSize', 14)
         set(gca, 'FontSize', 14)
         
         subplot(2,2,2)
         hold on;
-        plot(uptakearray(:,3), fracpharmarrayONLY, 'k.', 'MarkerSize',14)
-        plot([min(uptakearray(:,3)), max(uptakearray(:,3))] , int2 + grad2*[min(uptakearray(:,3)), max(uptakearray(:,3))] , 'r--', 'LineWidth', 1.6)
-        text(uptakearray(:,3), fracpharmarrayONLY, shortnames, 'horizontal','left', 'vertical','bottom')
-        xlabel('Fraction of eligible people vaccinated 2013-4', 'FontSize', 14)
-        ylabel('Fraction of doses administered at pharmacy', 'FontSize', 14)  
+        % 2014-5 (2) and frac pharmacy
+        plot(uptakearray(:,4), fracpharmarrayONLY(:,2), 'k.', 'MarkerSize',14)
+        %plot([min(uptakearray(:,3)), max(uptakearray(:,3))] , int2 + grad2*[min(uptakearray(:,3)), max(uptakearray(:,3))] , 'r--', 'LineWidth', 1.6)
+        text(uptakearray(:,4), fracpharmarrayONLY(:,2), shortnames, 'horizontal','left', 'vertical','bottom')
+        xlabel('Fraction of eligible people vaccinated 2014/15', 'FontSize', 14)
+        ylabel('Fraction of doses administered at pharmacy 2014/15', 'FontSize', 14)  
         set(gca, 'FontSize', 14)
         
         subplot(2,2,3)
         hold on;
-        plot(secondarray.Mean, fracpharmarrayONLY, 'k.', 'MarkerSize',14)
-        plot([min(secondarray.Mean), max(secondarray.Mean)] , int_income1b + grad_income1b*[min(secondarray.Mean), max(secondarray.Mean)] , 'r--', 'LineWidth', 1.6)
+        plot(secondarray.Mean, fracpharmarrayONLY(:,2), 'k.', 'MarkerSize',14)
+        %plot([min(secondarray.Mean), max(secondarray.Mean)] , int_income1b + grad_income1b*[min(secondarray.Mean), max(secondarray.Mean)] , 'r--', 'LineWidth', 1.6)
         rejig_shortnames = shortnames; %
         rejig_shortnames(7) = []; %delete city
         rejig_shortnames(12:(end+1)) = shortnames(12:end);
         rejig_shortnames{12} = 'HAC';
        
-        text(secondarray.Mean, fracpharmarrayONLY, rejig_shortnames, 'horizontal','left', 'vertical','bottom')
-        xlabel('Mean household income', 'FontSize', 14)
-        ylabel('Fraction of doses administered at pharmacy', 'FontSize', 14)  
+        text(secondarray.Mean, fracpharmarrayONLY(:,2), rejig_shortnames, 'horizontal','left', 'vertical','bottom')
+        xlabel('Mean household income, £', 'FontSize', 14)
+        ylabel('Fraction of doses administered at pharmacy 2014/15', 'FontSize', 14)  
         set(gca, 'FontSize', 14)
         
         subplot(2,2,4)
         hold on;
-        plot(secondarray.Median, fracpharmarrayONLY, 'k.', 'MarkerSize',14)
-        plot([min(secondarray.Median), max(secondarray.Median)] , int_income2b + grad_income2b*[min(secondarray.Median), max(secondarray.Median)] , 'r--', 'LineWidth', 1.6)
-        text(secondarray.Median, fracpharmarrayONLY, rejig_shortnames, 'horizontal','left', 'vertical','bottom')
-        xlabel('Median household income', 'FontSize', 14)
-        ylabel('Fraction of doses administered at pharmacy', 'FontSize', 14)  
+        plot(secondarray.Median, fracpharmarrayONLY(:,2), 'k.', 'MarkerSize',14)
+        %plot([min(secondarray.Median), max(secondarray.Median)] , int_income2b + grad_income2b*[min(secondarray.Median), max(secondarray.Median)] , 'r--', 'LineWidth', 1.6)
+        text(secondarray.Median, fracpharmarrayONLY(:,2), rejig_shortnames, 'horizontal','left', 'vertical','bottom')
+        xlabel('Median household income, £', 'FontSize', 14)
+        ylabel('Fraction of doses administered at pharmacy 2014/15', 'FontSize', 14)  
         set(gca, 'FontSize', 14)
         
          
         testx1 = uptakearray(:,2)-uptakearray(:,1); %difference between 2011-2 and 2012-13
         testx2 = uptakearray(:,3)-uptakearray(:,2); %difference between 2012-3 and 2013-14
+        testx3 = uptakearray(:,4)-uptakearray(:,3); %difference between 2013-4 and 2014-15
+        testx4 = uptakearray(:,4)-uptakearray(:,2); %difference between 2012-3 and 2014-15
         [h1,p1,ci1,stats1] = ttest(testx1)
         [h2,p2,ci2,stats2] = ttest(testx2)
+        [h3,p3,ci3,stats3] = ttest(testx3)
+        [h4,p4,ci4,stats4] = ttest(testx4)
+        
         
 end
 
