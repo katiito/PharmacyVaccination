@@ -6,6 +6,8 @@ function h = getOutputFunctionList
     h.outputLocationPharmacyvsGP = @outputLocationPharmacyvsGP;
     h.plotFractionFluShotAtPharmacy = @plotFractionFluShotAtPharmacy;
     h.plotCorrelationinUptake = @plotCorrelationinUptake;
+    h.outputCompletenessofReporting = @outputCompletenessofReporting;
+    
 end
 
 
@@ -681,6 +683,163 @@ function plotCorrelationinUptake(datafileGP_year0, datafileGP_year1, datafileGP_
         [h4,p4,ci4,stats4] = ttest(testx4)
         
         
+end
+
+function outputCompletenessofReporting(datafileGP_2011, datafileGP_2012, datafileGP_2013, datafileGP_2014, datafilePH, f)
+
+            
+
+            yearindex = 0;
+        for years = {'2011_2012', '2012_2013', '2013_2014', '2014_2015'}   
+                years = years{1};
+                yearindex = yearindex + 1;
+                
+                if strcmp(years, '2011_2012')
+                    datafileGP = datafileGP_2011;
+                elseif strcmp(years, '2012_2013')
+                    datafileGP = datafileGP_2012;
+                elseif strcmp(years, '2013_2014')
+                %% MOVE CCG Names to PCT Names so easily comparable
+                    datafileGP = datafileGP_2013;
+                    datafileGP.PCTName = cellfun(f.RelabelCCGasPCT, datafileGP.PCTName, 'UniformOutput', false);
+                elseif strcmp(years, '2014_2015')
+                    datafileGP = datafileGP_2014;
+                    datafileGP.PCTName = cellfun(f.RemovePCT, datafileGP.PCTName, 'UniformOutput', false);
+                    %% MOVE CCG Names to PCT Names so easily comparable
+                    datafileGP.PCTName = cellfun(f.RelabelCCGasPCT, datafileGP.PCTName, 'UniformOutput', false);
+                end
+                    PCTNames = unique(datafileGP.PCTName)'; %get the PCTs
+                
+                for pctname = PCTNames 
+                    looppct = pctname(1);
+                    looppct = regexprep(looppct,'[^\w'']','');
+                    looppct = looppct{1};
+                    %locate logicals for PCT
+                    arr.(looppct) = cellfun(@(a)strcmp(a, pctname), datafileGP.PCTName);
+                    
+                   if ~strcmp(years, '2014_2015')
+                            TotalVacc.(looppct) = sum(f.removeNaN(datafileGP.Allpatients.aged65andover.Vaccinated(arr.(looppct))))... %elderly patients
+                                        + sum(f.removeNaN(datafileGP.TotalAtRiskpatients.aged16tounder65.Vaccinated(arr.(looppct)))) ... 16-65 clinical risk groups
+                                         + sum(f.removeNaN(datafileGP.PregnantWomen.PregnantandNOTINaclinicalriskgroup.Vaccinated(arr.(looppct)))) ... pregnant women
+                                         + sum(f.removeNaN(datafileGP.Carers.agedunder65notatriskwhofulfilthecarerdefinition.Vaccinated(arr.(looppct)))); %  carers;
+
+
+                             TotalReg.(looppct) = sum(f.removeNaN(datafileGP.Allpatients.aged65andover.Registered(arr.(looppct))))...
+                                        + sum(f.removeNaN(datafileGP.TotalAtRiskpatients.aged16tounder65.Registered(arr.(looppct)))) ... 16-65 clinical risk groups
+                                         + sum(f.removeNaN(datafileGP.PregnantWomen.PregnantandNOTINaclinicalriskgroup.Registered(arr.(looppct)))) ... pregnant women
+                                         + sum(f.removeNaN(datafileGP.Carers.agedunder65notatriskwhofulfilthecarerdefinition.Registered(arr.(looppct)))); % carers;
+                                     
+                   else
+                        TotalVacc.(looppct) = sum(f.removeNaN(datafileGP.AllPatients.aged65andover.Vaccinated(arr.(looppct))))... %elderly patients
+                                        + sum(f.removeNaN(datafileGP.Totalatriskpatients.aged16yearstounder65years.Vaccinated(arr.(looppct)))) ... 16-65 clinical risk groups
+                                            + sum(f.removeNaN(datafileGP.TotalOthers.PregnantandNOTINaclinicalriskgroup.Vaccinated(arr.(looppct)))) ... pregnant women
+                                         + sum(f.removeNaN(datafileGP.Carers.agedunder65notatriskwhofulfilthecarerdefinition.Vaccinated(arr.(looppct)))); %  carers;
+
+
+                        TotalReg.(looppct) = sum(f.removeNaN(datafileGP.AllPatients.aged65andover.Registered(arr.(looppct))))...
+                                        + sum(f.removeNaN(datafileGP.Totalatriskpatients.aged16yearstounder65years.Registered(arr.(looppct)))) ... 16-65 clinical risk groups
+                                         + sum(f.removeNaN(datafileGP.TotalOthers.PregnantandNOTINaclinicalriskgroup.Registered(arr.(looppct)))) ... pregnant women
+                                         + sum(f.removeNaN(datafileGP.Carers.agedunder65notatriskwhofulfilthecarerdefinition.Registered(arr.(looppct)))); % carers;
+                                     
+                        TotalVaccOther.(looppct) = sum(f.removeNaN(datafileGP.AllPatients.aged65andover.VaccineElsewhere(arr.(looppct))))... %elderly patients
+                                        + sum(f.removeNaN(datafileGP.Totalatriskpatients.aged16yearstounder65years.VaccineElsewhere(arr.(looppct)))) ... 16-65 clinical risk groups
+                                            + sum(f.removeNaN(datafileGP.TotalOthers.PregnantandNOTINaclinicalriskgroup.VaccineElsewhere(arr.(looppct)))) ... pregnant women
+                                         + sum(f.removeNaN(datafileGP.Carers.agedunder65notatriskwhofulfilthecarerdefinition.VaccineElsewhere(arr.(looppct)))); %  carers;
+                   end
+                   
+                   
+                   %calculate percentage vaccinated
+                   pcVacc{yearindex}.(looppct) = TotalVacc.(looppct)/TotalReg.(looppct); 
+                   %count up rows in pharmacy data for each PCT
+                if strcmp(years, '2014_2015')
+                
+                   
+                        
+                        dosecount.(looppct) = sum( cellfun( @(pctname, reference, numRecords) (double(numRecords) .* strcmpi(strtrim(pctname), strtrim(reference))),...
+                                                                            datafilePH.PracticeBorough, ...
+                                                                            repmat(pctname, size(datafilePH.PracticeBorough,1),1),...
+                                                                            mat2cell(datafilePH.NoRecords, ones(size(datafilePH.NoRecords,1), 1))));
+                        percentReportedByGP.(looppct) =    TotalVaccOther.(looppct) / dosecount.(looppct);
+                        TotalVacc_Estimate.(looppct) = TotalVacc.(looppct) + max(0, dosecount.(looppct) - TotalVaccOther.(looppct));
+                        TotalVacc_GPOnly.(looppct) = TotalVacc.(looppct) - TotalVaccOther.(looppct);
+                        pcVacc_Estimate.(looppct) = TotalVacc_Estimate.(looppct)/TotalReg.(looppct); 
+                        pcVacc_ReportedGP.(looppct) = TotalVacc_GPOnly.(looppct)/TotalReg.(looppct); 
+               
+                end
+                end
+                pcVacc_Reportedarray(:,yearindex) = cell2mat(struct2cell(pcVacc{yearindex}));
+        
+        end
+                    
+      pcVacc_Estimatearray =  struct2array(pcVacc_Estimate);                   
+      pcVacc_ReportedGParray = struct2array(pcVacc_ReportedGP);
+      
+      % make to plotting array
+     percentageReportedbyGP_array = struct2array(percentReportedByGP);
+     [sortarray, sortindex] = sort(percentageReportedbyGP_array);
+     
+%      estimated = struct2array(pcVacc_Estimate);
+%      reported = struct2array(pcVacc);
+     % estimated number of actual doses
+ 
+     %% PERFORM T TESTS OF DIFFERENCES
+     uptake2011 = pcVacc_Reportedarray(:,1);
+     uptake2012 = pcVacc_Reportedarray(:,2);
+     uptake2013 = pcVacc_Reportedarray(:,3);
+     uptake2014_rep = pcVacc_Reportedarray(:,4);
+     uptake2014 = pcVacc_Estimatearray';
+     uptake2014_gp = pcVacc_ReportedGParray';
+     diff1 = uptake2014 - uptake2011;
+     diff2 = uptake2014 - uptake2012;
+     
+     
+      [h1,p1,ci1,stats1] = ttest(diff1)
+       [h1,p1,ci1,stats1] = ttest(diff2)
+       figure;
+       
+     
+     shortnames = cellfun( @f.getShortNames, PCTNames, 'UniformOutput', false);
+     ticksize = 14;
+     titlesize = 18;
+     labelsize = 16;
+     
+     subplot(2,1,1)
+     bar(sortarray)
+         A = get(gca, 'Children');
+         set(A, 'FaceColor', [0.8 0.8 0.9])
+         title('a) Maximum pharmacy doses that are reported in GP data 2014/15', 'FontSize', titlesize)
+         ylabel('Fraction administered', 'FontSize', labelsize)
+         ylabel('', 'FontSize', labelsize)
+            set(gca, 'XTick', 1:size(shortnames,2), 'FontSize', ticksize)
+            set(gca, 'XTickLabel', {})
+            text(1:length(shortnames),...
+                zeros(1,length(shortnames)), ...
+                shortnames(sortindex), ...
+                'VerticalAlign','top',...
+                'HorizontalAlign','right',...
+                'Rotation',45, ...
+                'FontSize', ticksize)
+            xlim([0 32])
+            box off;
+
+    subplot(2,1,2)
+    bar([uptake2014_gp(sortindex), uptake2014_rep(sortindex), uptake2014(sortindex)])
+            title('b) GP administeration and pharmacy administration (reported and estimated) 2014/15', 'FontSize', titlesize)
+            ylabel('Fraction administered', 'FontSize', labelsize)
+            set(gca, 'XTick', 1:size(shortnames,2), 'FontSize', ticksize)
+            set(gca, 'XTickLabel', {})
+            text(1:length(shortnames),...
+                zeros(1,length(shortnames)), ...
+                shortnames(sortindex), ...
+                'VerticalAlign','top',...
+                'HorizontalAlign','right',...
+                'Rotation',45, ...
+                'FontSize', ticksize)
+            xlim([0 32])
+            box off;
+            leg = legend('GP administered', 'GP+Pharmacy administered (GP reported)', 'GP+Pharmacy administered (GP+Pharmacy reported)');
+            set(leg, 'FontSize', ticksize)
+          
 end
 
 
