@@ -776,6 +776,11 @@ function outputCompletenessofReporting(datafileGP_2011, datafileGP_2012, datafil
       
       % make to plotting array
      percentageReportedbyGP_array = struct2array(percentReportedByGP);
+     meanreportedbygp = mean(percentageReportedbyGP_array);
+     stdreportedbygp = std(percentageReportedbyGP_array);
+     out = sprintf('Mean Fraction reported = %f (std=%f', meanreportedbygp, stdreportedbygp);
+     disp(out)
+     
      [sortarray, sortindex] = sort(percentageReportedbyGP_array);
      
 %      estimated = struct2array(pcVacc_Estimate);
@@ -809,7 +814,6 @@ function outputCompletenessofReporting(datafileGP_2011, datafileGP_2012, datafil
          set(A, 'FaceColor', [0.8 0.8 0.9])
          title('a) Maximum pharmacy doses that are reported in GP data 2014/15', 'FontSize', titlesize)
          ylabel('Fraction administered', 'FontSize', labelsize)
-         ylabel('', 'FontSize', labelsize)
             set(gca, 'XTick', 1:size(shortnames,2), 'FontSize', ticksize)
             set(gca, 'XTickLabel', {})
             text(1:length(shortnames),...
