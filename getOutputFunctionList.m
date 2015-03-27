@@ -171,12 +171,16 @@ yearindex = 0;
             else
                 TotalVacc.(looppct) = sum(f.removeNaN(datafileGP.AllPatients.aged65andover.Vaccinated(arr.(looppct))))... %elderly patients
                                         + sum(f.removeNaN(datafileGP.Totalatriskpatients.aged16yearstounder65years.Vaccinated(arr.(looppct)))) ... 16-65 clinical risk groups
+                                        + sum(f.removeNaN(datafileGP.Totalatriskpatients.aged5yearstounder16years.Vaccinated(arr.(looppct)))) ... 5-16 clinical risk groups
+                                        + sum(f.removeNaN(datafileGP.Totalatriskpatients.aged2yearstounder5years.Vaccinated(arr.(looppct)))) ... 2-5 clinical risk groups
                                          + sum(f.removeNaN(datafileGP.TotalOthers.PregnantandNOTINaclinicalriskgroup.Vaccinated(arr.(looppct)))) ... pregnant women
                                          + sum(f.removeNaN(datafileGP.Carers.agedunder65notatriskwhofulfilthecarerdefinition.Vaccinated(arr.(looppct)))); %  carers;
 
 
                 TotalReg.(looppct) = sum(f.removeNaN(datafileGP.AllPatients.aged65andover.Registered(arr.(looppct))))...
                                         + sum(f.removeNaN(datafileGP.Totalatriskpatients.aged16yearstounder65years.Registered(arr.(looppct)))) ... 16-65 clinical risk groups
+                                        + sum(f.removeNaN(datafileGP.Totalatriskpatients.aged5yearstounder16years.Registered(arr.(looppct)))) ... 5-§6 clinical risk groups
+                                        + sum(f.removeNaN(datafileGP.Totalatriskpatients.aged2yearstounder5years.Registered(arr.(looppct)))) ... 2-5 clinical risk groups
                                         + sum(f.removeNaN(datafileGP.TotalOthers.PregnantandNOTINaclinicalriskgroup.Registered(arr.(looppct)))) ... pregnant women
                                          + sum(f.removeNaN(datafileGP.Carers.agedunder65notatriskwhofulfilthecarerdefinition.Registered(arr.(looppct)))); % carers;
             end
@@ -520,13 +524,17 @@ function plotCorrelationinUptake(datafileGP_year0, datafileGP_year1, datafileGP_
                     else
                         TotalVacc.(looppct) = sum(f.removeNaN(datafileGP.AllPatients.aged65andover.Vaccinated(arr.(looppct))))... %elderly patients
                                         + sum(f.removeNaN(datafileGP.Totalatriskpatients.aged16yearstounder65years.Vaccinated(arr.(looppct)))) ... 16-65 clinical risk groups
-                                            + sum(f.removeNaN(datafileGP.TotalOthers.PregnantandNOTINaclinicalriskgroup.Vaccinated(arr.(looppct)))) ... pregnant women
+                                        + sum(f.removeNaN(datafileGP.Totalatriskpatients.aged5yearstounder16years.Vaccinated(arr.(looppct)))) ... 5-16 clinical risk groups
+                                        + sum(f.removeNaN(datafileGP.Totalatriskpatients.aged2yearstounder5years.Vaccinated(arr.(looppct)))) ... 2-5 clinical risk groups
+                                         + sum(f.removeNaN(datafileGP.TotalOthers.PregnantandNOTINaclinicalriskgroup.Vaccinated(arr.(looppct)))) ... pregnant women
                                          + sum(f.removeNaN(datafileGP.Carers.agedunder65notatriskwhofulfilthecarerdefinition.Vaccinated(arr.(looppct)))); %  carers;
 
 
                         TotalReg.(looppct) = sum(f.removeNaN(datafileGP.AllPatients.aged65andover.Registered(arr.(looppct))))...
                                         + sum(f.removeNaN(datafileGP.Totalatriskpatients.aged16yearstounder65years.Registered(arr.(looppct)))) ... 16-65 clinical risk groups
-                                         + sum(f.removeNaN(datafileGP.TotalOthers.PregnantandNOTINaclinicalriskgroup.Registered(arr.(looppct)))) ... pregnant women
+                                        + sum(f.removeNaN(datafileGP.Totalatriskpatients.aged5yearstounder16years.Registered(arr.(looppct)))) ... 5-§6 clinical risk groups
+                                        + sum(f.removeNaN(datafileGP.Totalatriskpatients.aged2yearstounder5years.Registered(arr.(looppct)))) ... 2-5 clinical risk groups
+                                        + sum(f.removeNaN(datafileGP.TotalOthers.PregnantandNOTINaclinicalriskgroup.Registered(arr.(looppct)))) ... pregnant women
                                          + sum(f.removeNaN(datafileGP.Carers.agedunder65notatriskwhofulfilthecarerdefinition.Registered(arr.(looppct)))); % carers;
                     end
                     %calculate percentage vaccinated
@@ -732,17 +740,24 @@ function outputCompletenessofReporting(datafileGP_2011, datafileGP_2012, datafil
                    else
                         TotalVacc.(looppct) = sum(f.removeNaN(datafileGP.AllPatients.aged65andover.Vaccinated(arr.(looppct))))... %elderly patients
                                         + sum(f.removeNaN(datafileGP.Totalatriskpatients.aged16yearstounder65years.Vaccinated(arr.(looppct)))) ... 16-65 clinical risk groups
-                                            + sum(f.removeNaN(datafileGP.TotalOthers.PregnantandNOTINaclinicalriskgroup.Vaccinated(arr.(looppct)))) ... pregnant women
+                                        + sum(f.removeNaN(datafileGP.Totalatriskpatients.aged5yearstounder16years.Vaccinated(arr.(looppct)))) ... 5-16 clinical risk groups
+                                        + sum(f.removeNaN(datafileGP.Totalatriskpatients.aged2yearstounder5years.Vaccinated(arr.(looppct)))) ... 2-5 clinical risk groups
+                                         + sum(f.removeNaN(datafileGP.TotalOthers.PregnantandNOTINaclinicalriskgroup.Vaccinated(arr.(looppct)))) ... pregnant women
                                          + sum(f.removeNaN(datafileGP.Carers.agedunder65notatriskwhofulfilthecarerdefinition.Vaccinated(arr.(looppct)))); %  carers;
 
 
                         TotalReg.(looppct) = sum(f.removeNaN(datafileGP.AllPatients.aged65andover.Registered(arr.(looppct))))...
                                         + sum(f.removeNaN(datafileGP.Totalatriskpatients.aged16yearstounder65years.Registered(arr.(looppct)))) ... 16-65 clinical risk groups
-                                         + sum(f.removeNaN(datafileGP.TotalOthers.PregnantandNOTINaclinicalriskgroup.Registered(arr.(looppct)))) ... pregnant women
+                                        + sum(f.removeNaN(datafileGP.Totalatriskpatients.aged5yearstounder16years.Registered(arr.(looppct)))) ... 5-§6 clinical risk groups
+                                        + sum(f.removeNaN(datafileGP.Totalatriskpatients.aged2yearstounder5years.Registered(arr.(looppct)))) ... 2-5 clinical risk groups
+                                        + sum(f.removeNaN(datafileGP.TotalOthers.PregnantandNOTINaclinicalriskgroup.Registered(arr.(looppct)))) ... pregnant women
                                          + sum(f.removeNaN(datafileGP.Carers.agedunder65notatriskwhofulfilthecarerdefinition.Registered(arr.(looppct)))); % carers;
+            
                                      
                         TotalVaccOther.(looppct) = sum(f.removeNaN(datafileGP.AllPatients.aged65andover.VaccineElsewhere(arr.(looppct))))... %elderly patients
                                         + sum(f.removeNaN(datafileGP.Totalatriskpatients.aged16yearstounder65years.VaccineElsewhere(arr.(looppct)))) ... 16-65 clinical risk groups
+                                        + sum(f.removeNaN(datafileGP.Totalatriskpatients.aged5yearstounder16years.VaccineElsewhere(arr.(looppct)))) ... 5-§6 clinical risk groups
+                                        + sum(f.removeNaN(datafileGP.Totalatriskpatients.aged2yearstounder5years.VaccineElsewhere(arr.(looppct)))) ... 2-5 clinical risk groups
                                             + sum(f.removeNaN(datafileGP.TotalOthers.PregnantandNOTINaclinicalriskgroup.VaccineElsewhere(arr.(looppct)))) ... pregnant women
                                          + sum(f.removeNaN(datafileGP.Carers.agedunder65notatriskwhofulfilthecarerdefinition.VaccineElsewhere(arr.(looppct)))); %  carers;
                    end
@@ -843,6 +858,7 @@ function outputCompletenessofReporting(datafileGP_2011, datafileGP_2012, datafil
             box off;
             leg = legend('GP administered', 'GP+Pharmacy administered (GP reported)', 'GP+Pharmacy administered (GP+Pharmacy reported)');
             set(leg, 'FontSize', ticksize)
+            legend('boxoff')
           
 end
 
