@@ -841,43 +841,60 @@ function outputCompletenessofReporting(datafileGP_2011, datafileGP_2012, datafil
      labelsize = 16;
      
      subplot(2,1,1)
-     bar(sortarray)
-         A = get(gca, 'Children');
-         set(A, 'FaceColor', [0.8 0.8 0.9])
-         title('a) Maximum pharmacy doses that are reported in GP data 2014/15', 'FontSize', titlesize)
-         ylabel('Fraction administered', 'FontSize', labelsize)
-            set(gca, 'XTick', 1:size(shortnames,2), 'FontSize', ticksize)
-            set(gca, 'XTickLabel', {})
-            text(1:length(shortnames),...
-                zeros(1,length(shortnames)), ...
-                shortnames(sortindex), ...
-                'VerticalAlign','top',...
-                'HorizontalAlign','right',...
-                'Rotation',45, ...
-                'FontSize', ticksize)
-            xlim([0 32])
+     
+     %% Histogram of reporting fractions
+     [h, centers] = hist(sortarray, 5, [0.8 0.8 0.9]);
+     N = size(sortarray,2);
+     d = diff(centers);
+     bar(centers, h/N)
+            A = get(gca, 'Children');
+            set(A, 'FaceColor', [0.8 0.8 0.9])
+            title('a) Maximum fraction of pharmacy doses reported in GP data 2014/15', 'FontSize', titlesize)
+            set(gca, 'FontSize', ticksize, 'XLim', [centers(1)-d(1)/2,centers(end)+d(1)/2])
+            set(gca, 'XTick', 0.3:0.1:1.0)
             box off;
+%      bar(sortarray)
+%          A = get(gca, 'Children');
+%          set(A, 'FaceColor', [0.8 0.8 0.9])
+%          title('a) Maximum pharmacy doses that are reported in GP data 2014/15', 'FontSize', titlesize)
+%          ylabel('Fraction administered', 'FontSize', labelsize)
+%             set(gca, 'XTick', 1:size(shortnames,2), 'FontSize', ticksize)
+%             set(gca, 'XTickLabel', {})
+%             text(1:length(shortnames),...
+%                 zeros(1,length(shortnames)), ...
+%                 shortnames(sortindex), ...
+%                 'VerticalAlign','top',...
+%                 'HorizontalAlign','right',...
+%                 'Rotation',45, ...
+%                 'FontSize', ticksize)
+%             xlim([0 32])
+%             box off;
 
     subplot(2,1,2)
-    bar([uptake2014_gp(sortindex), uptake2014_rep(sortindex), uptake2014(sortindex)])
-            title('b) GP administeration and pharmacy administration (reported and estimated) 2014/15', 'FontSize', titlesize)
-            ylabel('Fraction administered', 'FontSize', labelsize)
-            set(gca, 'XTick', 1:size(shortnames,2), 'FontSize', ticksize)
-            set(gca, 'XTickLabel', {})
-            text(1:length(shortnames),...
-                zeros(1,length(shortnames)), ...
-                shortnames(sortindex), ...
-                'VerticalAlign','top',...
-                'HorizontalAlign','right',...
-                'Rotation',45, ...
-                'FontSize', ticksize)
-            xlim([0 32])
-            box off;
-            leg = legend('GP administered', 'GP+Pharmacy administered (GP reported)', 'GP+Pharmacy administered (GP+Pharmacy reported)');
-            set(leg, 'FontSize', ticksize)
-            legend('boxoff')
-          
-end
+    boxplot([uptake2014_gp(sortindex), uptake2014_rep(sortindex), uptake2014(sortindex)],...
+            'Color', 'bbb', 'Symbol', 'b.')
+        title('b) Vaccine uptake 2014/15', 'FontSize', titlesize)
+        set(gca, 'FontSize', ticksize)
+        set(gca, 'XTickLabel', {'GP administered', 'GP+Pharmacy administered (GP reported)', 'GP+Pharmacy administered (GP+Pharmacy reported)'});
+        box off
+%     bar([uptake2014_gp(sortindex), uptake2014_rep(sortindex), uptake2014(sortindex)])
+%             title('b) GP administeration and pharmacy administration (reported and estimated) 2014/15', 'FontSize', titlesize)
+%             ylabel('Fraction administered', 'FontSize', labelsize)
+%             set(gca, 'XTick', 1:size(shortnames,2), 'FontSize', ticksize)
+%             set(gca, 'XTickLabel', {})
+%             text(1:length(shortnames),...
+%                 zeros(1,length(shortnames)), ...
+%                 shortnames(sortindex), ...
+%                 'VerticalAlign','top',...
+%                 'HorizontalAlign','right',...
+%                 'Rotation',45, ...
+%                 'FontSize', ticksize)
+%             xlim([0 32])
+%             box off;
+%             leg = legend('GP administered', 'GP+Pharmacy administered (GP reported)', 'GP+Pharmacy administered (GP+Pharmacy reported)');
+%             set(leg, 'FontSize', ticksize)
+%             legend('boxoff')
+          end
 
 
 %% HOW MANY PEOPLE GO SOME PLACE ELSE TO GET THEIR FLU SHOT
