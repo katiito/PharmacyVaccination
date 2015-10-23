@@ -179,7 +179,7 @@ yearindex = 0;
 
                 TotalReg.(looppct) = sum(f.removeNaN(datafileGP.AllPatients.aged65andover.Registered(arr.(looppct))))...
                                         + sum(f.removeNaN(datafileGP.Totalatriskpatients.aged16yearstounder65years.Registered(arr.(looppct)))) ... 16-65 clinical risk groups
-                                        + sum(f.removeNaN(datafileGP.Totalatriskpatients.aged5yearstounder16years.Registered(arr.(looppct)))) ... 5-§6 clinical risk groups
+                                        + sum(f.removeNaN(datafileGP.Totalatriskpatients.aged5yearstounder16years.Registered(arr.(looppct)))) ... 5-?6 clinical risk groups
                                         + sum(f.removeNaN(datafileGP.Totalatriskpatients.aged2yearstounder5years.Registered(arr.(looppct)))) ... 2-5 clinical risk groups
                                         + sum(f.removeNaN(datafileGP.TotalOthers.PregnantandNOTINaclinicalriskgroup.Registered(arr.(looppct)))) ... pregnant women
                                          + sum(f.removeNaN(datafileGP.Carers.agedunder65notatriskwhofulfilthecarerdefinition.Registered(arr.(looppct)))); % carers;
@@ -245,12 +245,18 @@ yearindex = 0;
         sd2arr = sdvaccpharm2(sortindex_ph,:);
         [fracpharmonlyarray, sortindex_fracph] = sortrows(fracpharmarrayONLY,1);
         sd3arr = sdvaccpharm3(sortindex_fracph,:);
-        
-        fig = figure;
-        %set(fig, 'Position', [100 100 1600 900]);
+   %%     
+         fig = figure;
+%         papersize = [500 300];
+%         set(fig, 'Units','pixels','Position', [0 0 1600 900],...
+%                     'Visible', 'off','PaperUnits','centimeters',...
+%                     'PaperSize',papersize,'PaperPosition',[5,5,papersize]);
         ss = get(0,'screensize');
         set(gcf,'position',...
                  [100, 100, ss(3), ss(4)]);
+%         fig = figure('units','normalized',...
+%                         'outerposition',[0 0 1 1],...
+%                         'Visible', 'off');     
         plotwidth = 0.41;
         plotheight = 0.40;
         leftmargin = 0.1;
@@ -270,7 +276,7 @@ yearindex = 0;
         % plot main fig
         %fig = figure('Position', [100 100 1600 900]); %, 'Visible', 'off');
         %mainax = axes('Position', [0.05 0.1 0.5 1.95]);
-        axes(ax(3));
+        set(gcf,'CurrentAxes',ax(3)),
         hold on;
         bar(allarray);
         numgroups = size(allarray, 1);
@@ -308,9 +314,9 @@ yearindex = 0;
 
         % plot top row (1)
         %colormap(cmap)
-        axes(ax(1)), hold on;
+        set(gcf,'CurrentAxes',ax(1)), hold on;
         %inset = axes('Position', [mainax(1) mainax(2)+mainax(4) 0.5*mainax(3) mainax(4)]);
-        h = bar(fracpharmonlyarray);
+        bar(fracpharmonlyarray);
 %             x = get(h, 'XData');
 %             plot([x{1}; x{1}], [fracpharmonlyarray(:)-1.96*sdvaccpharm2 fracpharmonlyarray+1.96*sdvaccpharm2]', 'k-');
         A = get(gca, 'Children');
@@ -351,23 +357,24 @@ yearindex = 0;
         set(gca, 'FontSize', ticksize)
         title('a) Fraction of doses administered at pharmacy', 'FontSize', titlesize)
         xlim(xlimits)
-                %% inset histogram
-                rax = get(gca, 'Position');
-                axes('Position', [rax(1)+0.15*rax(4) rax(2)+0.35*rax(3) 0.35*rax(3) 0.5*rax(4)]);
-                [hist1, mdpts1] = hist(fracpharmonlyarray);
-                bar(mdpts1, hist1)
-                A = get(gca, 'Children');
-                set(A(1), 'FaceColor', [0.6 0.6 0.9])
-                set(A(2), 'FaceColor', [0.9 0.9 0.9])   
+        
+            % inset histogram
+            rax = get(gca, 'Position');
+            axes('Position', [rax(1)+0.15*rax(4) rax(2)+0.35*rax(3) 0.35*rax(3) 0.5*rax(4)]);
+            [hist1, mdpts1] = hist(fracpharmonlyarray);
+            bar(mdpts1, hist1)
+            A = get(gca, 'Children');
+            set(A(1), 'FaceColor', [0.6 0.6 0.9])
+            set(A(2), 'FaceColor', [0.9 0.9 0.9])   
 %                 hq = findobj(gca,'Type','patch');
 %                 hq.FaceColor = [0.8, 0.8, 0.9];
-                ylabel('Frequency', 'FontSize', 12);
-                box off;
+            ylabel('Frequency', 'FontSize', 12);
+            box off;
                 
                 
                 
         % plot top row two
-        axes(ax(2)), hold on;
+        set(gcf,'CurrentAxes',ax(2)), hold on
         %inset = axes('Position', [ax(1)+0.5*ax(3) ax(2)+0.6*ax(4) 0.5*ax(3) 0.4*ax(4)]);
         bar(pharmonlyarray);
         %x = get(h, 'XData');
@@ -406,7 +413,7 @@ yearindex = 0;
         set(gca, 'FontSize', ticksize)
         title('b) Fraction of registered patients receiving dose at pharmacy', 'FontSize', titlesize)
         xlim(xlimits)
-            %% inset histogram
+            % inset histogram
                 rax = get(gca, 'Position');
                 axes('Position', [rax(1)+0.15*rax(4) rax(2)+0.35*rax(3) 0.35*rax(3) 0.5*rax(4)]);
                 [hist2, mdpts2] = hist(pharmonlyarray);
@@ -418,7 +425,17 @@ yearindex = 0;
 %                 hq.FaceColor = [0.8, 0.9, 0.8];
                 ylabel('Frequency', 'FontSize', 12);
                 box off;
- end 
+                
+                % SAVE FIGURE
+%                 saveas(gcf, 'PharmacyUptake_byPCT_4lettercodes.fig');
+                %
+%                 set(gcf,'PaperPositionMode','auto')
+%                 print(gcf,'PharmacyUptake_byPCT_4lettercodesPRINT.pdf','-dpdf','-r300')
+%                  saveas(gcf, 'PharmacyUptake_byPCT_4lettercodesSAVE.eps', 'psc2');
+ 
+%%
+
+end 
 
 
 %% HOW MANY PEOPLE GET THE FLU SHOT AT A PHARMACY BY PCT (relative to number of people registered)
@@ -532,7 +549,7 @@ function plotCorrelationinUptake(datafileGP_year0, datafileGP_year1, datafileGP_
 
                         TotalReg.(looppct) = sum(f.removeNaN(datafileGP.AllPatients.aged65andover.Registered(arr.(looppct))))...
                                         + sum(f.removeNaN(datafileGP.Totalatriskpatients.aged16yearstounder65years.Registered(arr.(looppct)))) ... 16-65 clinical risk groups
-                                        + sum(f.removeNaN(datafileGP.Totalatriskpatients.aged5yearstounder16years.Registered(arr.(looppct)))) ... 5-§6 clinical risk groups
+                                        + sum(f.removeNaN(datafileGP.Totalatriskpatients.aged5yearstounder16years.Registered(arr.(looppct)))) ... 5-?6 clinical risk groups
                                         + sum(f.removeNaN(datafileGP.Totalatriskpatients.aged2yearstounder5years.Registered(arr.(looppct)))) ... 2-5 clinical risk groups
                                         + sum(f.removeNaN(datafileGP.TotalOthers.PregnantandNOTINaclinicalriskgroup.Registered(arr.(looppct)))) ... pregnant women
                                          + sum(f.removeNaN(datafileGP.Carers.agedunder65notatriskwhofulfilthecarerdefinition.Registered(arr.(looppct)))); % carers;
@@ -667,7 +684,7 @@ function plotCorrelationinUptake(datafileGP_year0, datafileGP_year1, datafileGP_
         rejig_shortnames{12} = 'HAC';
        
         text(secondarray.Mean, fracpharmarrayONLY(:,2), rejig_shortnames, 'horizontal','left', 'vertical','bottom')
-        xlabel('Mean household income, £', 'FontSize', 14)
+        xlabel('Mean household income, ?', 'FontSize', 14)
         ylabel('Fraction of doses administered at pharmacy 2014/15', 'FontSize', 14)  
         set(gca, 'FontSize', 14)
         
@@ -676,13 +693,13 @@ function plotCorrelationinUptake(datafileGP_year0, datafileGP_year1, datafileGP_
         plot(secondarray.Median, fracpharmarrayONLY(:,2), 'k.', 'MarkerSize',14)
         %plot([min(secondarray.Median), max(secondarray.Median)] , int_income2b + grad_income2b*[min(secondarray.Median), max(secondarray.Median)] , 'r--', 'LineWidth', 1.6)
         text(secondarray.Median, fracpharmarrayONLY(:,2), rejig_shortnames, 'horizontal','left', 'vertical','bottom')
-        xlabel('Median household income, £', 'FontSize', 14)
+        xlabel('Median household income, ?', 'FontSize', 14)
         ylabel('Fraction of doses administered at pharmacy 2014/15', 'FontSize', 14)  
         set(gca, 'FontSize', 14)
         
          
         testx1 = uptakearray(:,2)-uptakearray(:,1); %difference between 2011-2 and 2012-13
-        testx2 = uptakearray(:,3)-uptakearray(:,2); %difference between 2012-3 and 2013-14
+        testx2 = uptakearray(:,3)-uptakearray(:,2); %difference between 2012-3 and 2013-14goe
         testx3 = uptakearray(:,4)-uptakearray(:,3); %difference between 2013-4 and 2014-15
         testx4 = uptakearray(:,4)-uptakearray(:,2); %difference between 2012-3 and 2014-15
         [h1,p1,ci1,stats1] = ttest(testx1)
@@ -748,7 +765,7 @@ function outputCompletenessofReporting(datafileGP_2011, datafileGP_2012, datafil
 
                         TotalReg.(looppct) = sum(f.removeNaN(datafileGP.AllPatients.aged65andover.Registered(arr.(looppct))))...
                                         + sum(f.removeNaN(datafileGP.Totalatriskpatients.aged16yearstounder65years.Registered(arr.(looppct)))) ... 16-65 clinical risk groups
-                                        + sum(f.removeNaN(datafileGP.Totalatriskpatients.aged5yearstounder16years.Registered(arr.(looppct)))) ... 5-§6 clinical risk groups
+                                        + sum(f.removeNaN(datafileGP.Totalatriskpatients.aged5yearstounder16years.Registered(arr.(looppct)))) ... 5-?6 clinical risk groups
                                         + sum(f.removeNaN(datafileGP.Totalatriskpatients.aged2yearstounder5years.Registered(arr.(looppct)))) ... 2-5 clinical risk groups
                                         + sum(f.removeNaN(datafileGP.TotalOthers.PregnantandNOTINaclinicalriskgroup.Registered(arr.(looppct)))) ... pregnant women
                                          + sum(f.removeNaN(datafileGP.Carers.agedunder65notatriskwhofulfilthecarerdefinition.Registered(arr.(looppct)))); % carers;
@@ -756,7 +773,7 @@ function outputCompletenessofReporting(datafileGP_2011, datafileGP_2012, datafil
                                      
                         TotalVaccOther.(looppct) = sum(f.removeNaN(datafileGP.AllPatients.aged65andover.VaccineElsewhere(arr.(looppct))))... %elderly patients
                                         + sum(f.removeNaN(datafileGP.Totalatriskpatients.aged16yearstounder65years.VaccineElsewhere(arr.(looppct)))) ... 16-65 clinical risk groups
-                                        + sum(f.removeNaN(datafileGP.Totalatriskpatients.aged5yearstounder16years.VaccineElsewhere(arr.(looppct)))) ... 5-§6 clinical risk groups
+                                        + sum(f.removeNaN(datafileGP.Totalatriskpatients.aged5yearstounder16years.VaccineElsewhere(arr.(looppct)))) ... 5-?6 clinical risk groups
                                         + sum(f.removeNaN(datafileGP.Totalatriskpatients.aged2yearstounder5years.VaccineElsewhere(arr.(looppct)))) ... 2-5 clinical risk groups
                                             + sum(f.removeNaN(datafileGP.TotalOthers.PregnantandNOTINaclinicalriskgroup.VaccineElsewhere(arr.(looppct)))) ... pregnant women
                                          + sum(f.removeNaN(datafileGP.Carers.agedunder65notatriskwhofulfilthecarerdefinition.VaccineElsewhere(arr.(looppct)))); %  carers;

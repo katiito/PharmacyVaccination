@@ -90,7 +90,7 @@ end
 
 function ss = getShortNames(anystring)
 
-    ss = regexp(anystring, '^\S{3}', 'match');
+    ss = regexp(anystring, '^\S{4}', 'match');
     ss = [char(ss), ' '];
 end
 

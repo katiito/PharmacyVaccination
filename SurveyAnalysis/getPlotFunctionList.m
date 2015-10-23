@@ -778,14 +778,12 @@ close all
                 ylim([0 0.9])
                 
             output_mean_pharmacy_admin = sprintf('Mean Pharmacy Admin Costs: %f', mean(costdata.PHARMACY_admincosts_perdose));
-            output_median_pharmacy_admin = sprintf('Median Pharmacy Admin Costs: %f', median(costdata.PHARMACY_admincosts_perdose));
+            %output_median_pharmacy_admin = sprintf('Median Pharmacy Admin Costs: %f', median(costdata.PHARMACY_admincosts_perdose));
             output_mean_pharmacy_vaccine = sprintf('Mean Pharmacy Vaccine Costs: %f', mean(costdata.PHARMACY_vaccinecosts_perdose));
-            output_median_pharmacy_vaccine = sprintf('Median Pharmacy Vaccine Costs: %f', median(costdata.PHARMACY_vaccinecosts_perdose));
+            %output_median_pharmacy_vaccine = sprintf('Median Pharmacy Vaccine Costs: %f', median(costdata.PHARMACY_vaccinecosts_perdose));
             
-            disp(output_mean_pharmacy_admin)
-            disp(output_median_pharmacy_admin)
+            disp(output_mean_pharmacy_admin)            
             disp(output_mean_pharmacy_vaccine)
-            disp(output_median_pharmacy_vaccine)
             
             
     %top row
